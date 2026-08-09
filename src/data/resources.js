@@ -1,0 +1,89 @@
+export const resources = [
+  {
+    slug: "choosing-non-medical-home-care",
+    title: "Choosing Non-Medical Home Care",
+    excerpt: "A practical starting point for families comparing support at home.",
+    image: "/images/coffee-conversation.webp",
+    readTime: "5 min read",
+    sections: [
+      { heading: "Start with everyday needs", body: "Think about the routines that have become difficult, the times of day when support would help most, and the preferences that matter to your loved one." },
+      { heading: "Ask how care is personalized", body: "A good conversation should cover routines, communication preferences, family involvement and how the care plan can adapt over time." },
+      { heading: "Keep dignity at the center", body: "Support should help a person feel respected, heard and involved in decisions about their own daily life." },
+    ],
+  },
+  {
+    slug: "supporting-aging-loved-ones-at-home",
+    title: "Supporting Aging Loved Ones at Home",
+    excerpt: "Ways families can make daily life feel safer, calmer and more connected.",
+    image: "/images/senior-couple.webp",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Listen before changing routines", body: "Ask what feels difficult and what kind of help would feel welcome. Small, collaborative changes are often easier to accept." },
+      { heading: "Build a predictable rhythm", body: "Consistent mealtimes, visits and household routines can reduce stress and make support easier to coordinate." },
+      { heading: "Share the responsibility", body: "Family support does not have to rest with one person. Respite and dependable caregiving can help everyone sustain a healthier rhythm." },
+    ],
+  },
+  {
+    slug: "when-families-benefit-from-respite-care",
+    title: "When Families May Benefit From Respite Care",
+    excerpt: "Recognizing when a family caregiver could use dependable time to recharge.",
+    image: "/images/holding-hands.webp",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Respite is proactive support", body: "Taking a break is not stepping away from care. It can protect a caregiver's energy and make family support more sustainable." },
+      { heading: "Plan before burnout", body: "Regular, predictable relief can be easier for everyone than waiting for an urgent need." },
+      { heading: "Choose a familiar routine", body: "Share important preferences, daily rhythms and communication needs so respite time feels reassuring for your loved one." },
+    ],
+  },
+  {
+    slug: "creating-a-comfortable-home-routine",
+    title: "Creating a Comfortable Home Routine",
+    excerpt: "Simple ways to make daily activities feel organized and manageable.",
+    image: "/images/caregiver-welcome.webp",
+    readTime: "3 min read",
+    sections: [
+      { heading: "Keep the plan simple", body: "Focus on a few helpful anchors, such as morning preparation, meals, medication reminders and evening routines." },
+      { heading: "Allow room for preferences", body: "A comfortable routine should support the person, not control them. Choice and flexibility remain important." },
+      { heading: "Review what is working", body: "Needs can change. Check in regularly and adjust the routine with the client and family." },
+    ],
+  },
+  {
+    slug: "companionship-and-healthy-aging",
+    title: "Companionship and Healthy Aging",
+    excerpt: "Why conversation, familiar activities and shared time matter at home.",
+    image: "/images/sewing-companionship.webp",
+    readTime: "4 min read",
+    sections: [
+      { heading: "Connection belongs in the care plan", body: "Conversation and shared activities can bring purpose and warmth to an ordinary day." },
+      { heading: "Follow the person's interests", body: "Reading, music, crafts, short walks or a familiar television program can create natural moments of connection." },
+      { heading: "Consistency builds trust", body: "A dependable, respectful presence can help companionship feel comfortable and familiar over time." },
+    ],
+  },
+  {
+    slug: "questions-to-ask-a-home-care-provider",
+    title: "Questions to Ask a Home Care Provider",
+    excerpt: "A concise checklist for a thoughtful first conversation.",
+    image: "/images/caregiver-team.webp",
+    readTime: "5 min read",
+    sections: [
+      { heading: "How are caregivers prepared?", body: "Ask about screening, training, communication and how caregivers are matched with clients." },
+      { heading: "How is a care plan created?", body: "Find out how the provider learns about routines, preferences, scheduling and family involvement." },
+      { heading: "What is included?", body: "Confirm that the available services match your needs and understand which supports are non-medical." },
+    ],
+  },
+  {
+    slug: "medication-reminders-vs-medical-assistance",
+    title: "Medication Reminders vs. Medical Assistance",
+    excerpt: "Understanding the limits of a non-medical reminder service.",
+    image: "/images/caregiver-attentive.webp",
+    readTime: "4 min read",
+    sections: [
+      { heading: "What a reminder can include", body: "A caregiver may provide a verbal reminder based on an established routine or schedule." },
+      { heading: "What it does not include", body: "Non-medical caregivers do not administer medication, manage prescriptions or provide medical advice." },
+      { heading: "When to speak with a clinician", body: "Questions about dosage, side effects, interactions or changes should be directed to an appropriate licensed healthcare professional." },
+    ],
+  },
+];
+
+export const getResourceBySlug = (slug) => resources.find((resource) => resource.slug === slug);
+

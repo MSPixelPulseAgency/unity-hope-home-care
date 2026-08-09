@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://unityhope.vercel.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://unityhope.vercel.app/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/personal-care</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/companionship</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/meal-preparation</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/light-housekeeping</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/medication-reminders</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/respite-care</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/services/errands</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/service-areas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/request-care</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://unityhope.vercel.app/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unityhope.vercel.app/careers</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/choosing-non-medical-home-care</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/supporting-aging-loved-ones-at-home</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/when-families-benefit-from-respite-care</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/creating-a-comfortable-home-routine</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/companionship-and-healthy-aging</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/questions-to-ask-a-home-care-provider</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/resources/medication-reminders-vs-medical-assistance</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unityhope.vercel.app/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>
+
