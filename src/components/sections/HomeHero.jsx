@@ -28,10 +28,10 @@ export function HomeHero() {
         <div className="hero-media reveal reveal-delay">
           <div className="hero-image-wrap">
             <img
-              src="/images/unity-hope-hero.webp"
+              src="/images/unity-hope-hero-clean.webp"
               alt="A caregiver in purple scrubs sharing a warm moment with an older woman at home"
-              width="494"
-              height="405"
+              width="1385"
+              height="1136"
               fetchPriority="high"
             />
           </div>
@@ -49,4 +49,3 @@ export function HomeHero() {
     </section>
   );
 }
-

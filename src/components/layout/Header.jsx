@@ -54,6 +54,7 @@ export function Header() {
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
+        setServicesOpen(false);
         return;
       }
 
@@ -115,12 +116,13 @@ export function Header() {
                   type="button"
                   className={location.pathname.startsWith("/services") ? "active" : ""}
                   aria-expanded={servicesOpen}
+                  aria-controls="services-dropdown"
                   onClick={() => setServicesOpen((open) => !open)}
                   onMouseEnter={() => setServicesOpen(true)}
                 >
                   Our Services <Icon name="ChevronDown" size={15} />
                 </button>
-                <div className={`services-dropdown ${servicesOpen ? "is-open" : ""}`}>
+                <div className={`services-dropdown ${servicesOpen ? "is-open" : ""}`} id="services-dropdown">
                   <NavLink to="/services" onClick={() => setServicesOpen(false)}>All Services</NavLink>
                   {services.map((service) => (
                     <NavLink key={service.slug} to={`/services/${service.slug}`} onClick={() => setServicesOpen(false)}>{service.shortTitle}</NavLink>

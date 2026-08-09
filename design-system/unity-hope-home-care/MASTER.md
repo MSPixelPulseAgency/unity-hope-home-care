@@ -30,19 +30,23 @@
 | Destructive | `#DC2626` | `--color-destructive` |
 | Ring | `#E3AC27` | `--color-ring` |
 
+For gold-colored text on white or cream, use the darker accessible gold `#8A5700`; reserve brighter gold values for decoration, borders and dark-background accents.
+
 **Color Notes:** Exact Unity & Hope purple and gold brand direction takes precedence over the generic database match.
 
 ### Typography
 
-- **Heading Font:** Cormorant Garamond
-- **Body Font:** Manrope
-- **Mood:** elegant, warm, senior-friendly, professional, trustworthy
-- **Google Fonts:** Cormorant Garamond + Manrope
+- **Heading Font:** Atkinson Hyperlegible
+- **Body Font:** Atkinson Hyperlegible
+- **Mood:** calm, premium, highly legible, senior-friendly, professional, trustworthy
+- **Google Fonts:** Atkinson Hyperlegible
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
 ```
+
+**Senior readability baseline:** body copy 18-20px with 1.7-1.9 line-height; hero descriptions 22-24px; card descriptions at least 18px; footer copy at least 17px; controls at least 52px high with visible 4px focus rings.
 
 ### Spacing Variables
 

@@ -6,7 +6,7 @@
   --purple-600: #5b2585;
   --purple-100: #eee5f5;
   --lavender-50: #f8f4fb;
-  --gold-700: #b77708;
+  --gold-700: #8a5700;
   --gold-600: #c8890a;
   --gold-500: #d59a19;
   --gold-400: #e3ac27;
@@ -18,8 +18,8 @@
   --line: #eadff1;
   --success: #17673a;
   --error: #a62121;
-  --font-heading: "Cormorant Garamond", Georgia, serif;
-  --font-body: "Manrope", Inter, system-ui, sans-serif;
+  --font-heading: "Atkinson Hyperlegible", Inter, system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", Inter, system-ui, sans-serif;
   --container: min(calc(100% - 48px), 1320px);
   --radius-sm: 12px;
   --radius-md: 20px;
@@ -32,4 +32,3 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
-

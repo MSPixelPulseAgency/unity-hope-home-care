@@ -11,7 +11,68 @@ const setMeta = (attribute, key, content) => {
   element.setAttribute("content", content);
 };
 
-export function Seo({ title, description, path = "/", image = "/og.jpg", schema }) {
+const breadcrumbLabelMap = {
+  about: "About Us",
+  services: "Services",
+  "service-areas": "Service Areas",
+  "request-care": "Request Care",
+  contact: "Contact",
+  careers: "Careers",
+  resources: "Resources",
+  privacy: "Privacy",
+};
+
+const createSchema = ({ schema, path, fullTitle, description, canonical }) => {
+  const suppliedItems = schema?.["@graph"] || (schema ? [schema] : []);
+  const graph = suppliedItems.map((item) => {
+    const cleanItem = { ...item };
+    delete cleanItem["@context"];
+    return cleanItem;
+  });
+  const segments = path.split("/").filter(Boolean);
+
+  graph.push({
+    "@type": "WebPage",
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: fullTitle,
+    description,
+    isPartOf: { "@id": `${siteConfig.siteUrl}/#website` },
+  });
+
+  if (path === "/") {
+    graph.push({
+      "@type": "WebSite",
+      "@id": `${siteConfig.siteUrl}/#website`,
+      url: siteConfig.siteUrl,
+      name: siteConfig.companyName,
+    });
+  }
+
+  if (segments.length) {
+    const currentLabel = fullTitle.split("|")[0].trim();
+    graph.push({
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.siteUrl },
+        ...segments.map((segment, index) => {
+          const isLast = index === segments.length - 1;
+          const itemPath = `/${segments.slice(0, index + 1).join("/")}`;
+          return {
+            "@type": "ListItem",
+            position: index + 2,
+            name: isLast ? currentLabel : (breadcrumbLabelMap[segment] || segment.replaceAll("-", " ")),
+            item: new URL(itemPath, siteConfig.siteUrl).toString(),
+          };
+        }),
+      ],
+    });
+  }
+
+  return { "@context": "https://schema.org", "@graph": graph };
+};
+
+export function Seo({ title, description, path = "/", image = "/og.jpg", schema, keywords = [] }) {
   useEffect(() => {
     const fullTitle = title.includes("Unity & Hope") ? title : `${title} | Unity & Hope Home Care LLC`;
     const canonical = new URL(path, siteConfig.siteUrl).toString();
@@ -19,11 +80,26 @@ export function Seo({ title, description, path = "/", image = "/og.jpg", schema 
 
     document.title = fullTitle;
     setMeta("name", "description", description);
+    setMeta("name", "robots", "index, follow, max-image-preview:large");
+    setMeta("name", "keywords", [
+      "home care",
+      "senior care",
+      "elder care",
+      "non-medical home care",
+      "caregiver services",
+      "aging in place",
+      "Ohio home care",
+      "Dayton home care",
+      "Montgomery County home care",
+      ...keywords,
+    ].join(", "));
     setMeta("property", "og:title", fullTitle);
     setMeta("property", "og:description", description);
     setMeta("property", "og:type", "website");
     setMeta("property", "og:url", canonical);
     setMeta("property", "og:image", socialImage);
+    setMeta("property", "og:site_name", siteConfig.companyName);
+    setMeta("property", "og:locale", "en_US");
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", description);
@@ -39,17 +115,14 @@ export function Seo({ title, description, path = "/", image = "/og.jpg", schema 
 
     const scriptId = "page-schema";
     document.getElementById(scriptId)?.remove();
-    if (schema) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.type = "application/ld+json";
-      script.textContent = JSON.stringify(schema);
-      document.head.appendChild(script);
-    }
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(createSchema({ schema, path, fullTitle, description, canonical }));
+    document.head.appendChild(script);
 
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [description, image, path, schema, title]);
+  }, [description, image, keywords, path, schema, title]);
 
   return null;
 }
-

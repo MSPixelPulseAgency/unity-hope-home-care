@@ -2,7 +2,7 @@
 
 ## Brand and scope
 
-Maintain **Unity & Hope Home Care LLC** as a standalone React/Vite website. The official brand uses deep purple, gold, warm cream, Cormorant Garamond headings and Manrope body copy. Use the exact supplied logo and emblem under `public/brand/`; never redraw, replace, stretch or recolor them.
+Maintain **Unity & Hope Home Care LLC** as a standalone React/Vite website. The official brand uses deep purple, gold and warm cream with Atkinson Hyperlegible for senior-readable headings and body copy. Use the exact supplied logo and emblem under `public/brand/`; never redraw, replace, stretch or recolor them.
 
 Core contact details live only in `src/config/siteConfig.js`: `937-221-9764`, `uhhomehealthllc@gmail.com`, `101 Woodman Dr. Suite 212B, Riverside, Ohio 45431`, and fax `937-496-5220`. Preserve the non-medical home care positioning.
 
@@ -13,6 +13,7 @@ The app includes Home, About, Services, seven service details, Service Areas, Re
 ## Maintenance rules
 
 - Preserve the purple/gold curved visual language, senior-friendly readability and mobile action bar.
+- Keep body copy at 18-20px, hero descriptions at 22-24px, footer copy at least 17px and comfortable 1.7-1.9 line-height.
 - Keep all tap targets at least 44px, retain visible focus states, semantic headings, alt text and reduced-motion support.
 - Do not add medical, nursing, licensing, certification, award, client-count or outcome claims.
 - Do not edit other repositories or move this site into another project.
@@ -21,4 +22,3 @@ The app includes Home, About, Services, seven service details, Service Areas, Re
 ## Deployment
 
 Deploy the `main` branch to the Vercel project targeting `unityhope.vercel.app`. Preserve the SPA rewrite and the `/api/contact` serverless function.
-

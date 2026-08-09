@@ -4,6 +4,7 @@ export const resources = [
     title: "Choosing Non-Medical Home Care",
     excerpt: "A practical starting point for families comparing support at home.",
     image: "/images/coffee-conversation.webp",
+    imageAlt: "An older woman having a relaxed conversation over coffee at home",
     readTime: "5 min read",
     sections: [
       { heading: "Start with everyday needs", body: "Think about the routines that have become difficult, the times of day when support would help most, and the preferences that matter to your loved one." },
@@ -16,6 +17,7 @@ export const resources = [
     title: "Supporting Aging Loved Ones at Home",
     excerpt: "Ways families can make daily life feel safer, calmer and more connected.",
     image: "/images/senior-couple.webp",
+    imageAlt: "An older couple smiling together during a quiet moment at home",
     readTime: "4 min read",
     sections: [
       { heading: "Listen before changing routines", body: "Ask what feels difficult and what kind of help would feel welcome. Small, collaborative changes are often easier to accept." },
@@ -28,6 +30,7 @@ export const resources = [
     title: "When Families May Benefit From Respite Care",
     excerpt: "Recognizing when a family caregiver could use dependable time to recharge.",
     image: "/images/holding-hands.webp",
+    imageAlt: "Two people holding hands in a reassuring gesture of support",
     readTime: "4 min read",
     sections: [
       { heading: "Respite is proactive support", body: "Taking a break is not stepping away from care. It can protect a caregiver's energy and make family support more sustainable." },
@@ -40,6 +43,7 @@ export const resources = [
     title: "Creating a Comfortable Home Routine",
     excerpt: "Simple ways to make daily activities feel organized and manageable.",
     image: "/images/caregiver-welcome.webp",
+    imageAlt: "A caregiver welcoming an older adult into a comfortable home routine",
     readTime: "3 min read",
     sections: [
       { heading: "Keep the plan simple", body: "Focus on a few helpful anchors, such as morning preparation, meals, medication reminders and evening routines." },
@@ -52,6 +56,7 @@ export const resources = [
     title: "Companionship and Healthy Aging",
     excerpt: "Why conversation, familiar activities and shared time matter at home.",
     image: "/images/sewing-companionship.webp",
+    imageAlt: "An older woman enjoying a sewing activity with a companion",
     readTime: "4 min read",
     sections: [
       { heading: "Connection belongs in the care plan", body: "Conversation and shared activities can bring purpose and warmth to an ordinary day." },
@@ -64,6 +69,7 @@ export const resources = [
     title: "Questions to Ask a Home Care Provider",
     excerpt: "A concise checklist for a thoughtful first conversation.",
     image: "/images/caregiver-team.webp",
+    imageAlt: "Older adults and a caregiver gathered together in a home setting",
     readTime: "5 min read",
     sections: [
       { heading: "How are caregivers prepared?", body: "Ask about screening, training, communication and how caregivers are matched with clients." },
@@ -76,6 +82,7 @@ export const resources = [
     title: "Medication Reminders vs. Medical Assistance",
     excerpt: "Understanding the limits of a non-medical reminder service.",
     image: "/images/caregiver-attentive.webp",
+    imageAlt: "A caregiver listening attentively to an older adult at home",
     readTime: "4 min read",
     sections: [
       { heading: "What a reminder can include", body: "A caregiver may provide a verbal reminder based on an established routine or schedule." },
@@ -86,4 +93,3 @@ export const resources = [
 ];
 
 export const getResourceBySlug = (slug) => resources.find((resource) => resource.slug === slug);
-

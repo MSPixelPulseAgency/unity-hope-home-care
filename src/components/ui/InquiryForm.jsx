@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { services } from "../../data/services";
 import { Icon } from "./Icon";
 
@@ -23,6 +23,7 @@ const initialState = {
 export function InquiryForm({ type = "contact", compact = false }) {
   const [form, setForm] = useState(initialState);
   const [status, setStatus] = useState({ state: "idle", message: "" });
+  const statusRef = useRef(null);
   const [startedAt] = useState(() => Date.now());
   const isCare = type === "request-care";
   const isCareer = type === "career";
@@ -54,43 +55,46 @@ export function InquiryForm({ type = "contact", compact = false }) {
       if (!response.ok) throw new Error(result.error || "We could not send your message. Please call us instead.");
       setStatus({ state: "success", message: result.message || "Thank you. We will be in touch soon." });
       setForm(initialState);
+      window.requestAnimationFrame(() => statusRef.current?.focus());
     } catch (error) {
       setStatus({ state: "error", message: error.message });
+      window.requestAnimationFrame(() => statusRef.current?.focus());
     }
   };
 
   return (
-    <form className={`inquiry-form ${compact ? "inquiry-form-compact" : ""}`} onSubmit={submit}>
+    <form className={`inquiry-form ${compact ? "inquiry-form-compact" : ""}`} onSubmit={submit} aria-busy={status.state === "loading"}>
       <div className="honeypot" aria-hidden="true">
         <label htmlFor={`${type}-website`}>Website</label>
         <input id={`${type}-website`} name="website" value={form.website} onChange={update} tabIndex="-1" autoComplete="off" />
       </div>
+      <p className="required-note"><span aria-hidden="true">*</span> Required fields</p>
       <div className="form-grid">
-        <label className="field">
+        <label className="field" htmlFor={`${type}-name`}>
           <span>Full Name *</span>
-          <input name="name" value={form.name} onChange={update} autoComplete="name" required />
+          <input id={`${type}-name`} name="name" value={form.name} onChange={update} autoComplete="name" required />
         </label>
-        <label className="field">
+        <label className="field" htmlFor={`${type}-phone`}>
           <span>Phone *</span>
-          <input name="phone" type="tel" value={form.phone} onChange={update} autoComplete="tel" required />
+          <input id={`${type}-phone`} name="phone" type="tel" value={form.phone} onChange={update} autoComplete="tel" inputMode="tel" required />
         </label>
-        <label className={`field ${compact ? "field-full" : ""}`}>
+        <label className={`field ${compact ? "field-full" : ""}`} htmlFor={`${type}-email`}>
           <span>Email *</span>
-          <input name="email" type="email" value={form.email} onChange={update} autoComplete="email" required />
+          <input id={`${type}-email`} name="email" type="email" value={form.email} onChange={update} autoComplete="email" inputMode="email" required />
         </label>
 
         {isCare && (
           <>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-relationship`}>
               <span>Who needs care? *</span>
-              <select name="relationship" value={form.relationship} onChange={update} required>
+              <select id={`${type}-relationship`} name="relationship" value={form.relationship} onChange={update} required>
                 <option value="">Choose one</option>
                 {['Myself', 'Parent', 'Spouse', 'Relative', 'Friend', 'Other'].map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-schedule`}>
               <span>Preferred schedule</span>
-              <input name="schedule" value={form.schedule} onChange={update} placeholder="Days or times that work best" />
+              <input id={`${type}-schedule`} name="schedule" value={form.schedule} onChange={update} placeholder="Days or times that work best" />
             </label>
             <fieldset className="field field-full checkbox-fieldset">
               <legend>Services interested in</legend>
@@ -109,34 +113,34 @@ export function InquiryForm({ type = "contact", compact = false }) {
                 ))}
               </div>
             </fieldset>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-start-date`}>
               <span>Preferred start date</span>
-              <input name="startDate" type="date" value={form.startDate} onChange={update} />
+              <input id={`${type}-start-date`} name="startDate" type="date" value={form.startDate} onChange={update} />
             </label>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-location`}>
               <span>Address / City</span>
-              <input name="location" value={form.location} onChange={update} autoComplete="street-address" />
+              <input id={`${type}-location`} name="location" value={form.location} onChange={update} autoComplete="street-address" />
             </label>
           </>
         )}
 
         {isCareer && (
           <>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-city`}>
               <span>City *</span>
-              <input name="city" value={form.city} onChange={update} autoComplete="address-level2" required />
+              <input id={`${type}-city`} name="city" value={form.city} onChange={update} autoComplete="address-level2" required />
             </label>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-experience`}>
               <span>Caregiving experience</span>
-              <input name="experience" value={form.experience} onChange={update} />
+              <input id={`${type}-experience`} name="experience" value={form.experience} onChange={update} />
             </label>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-availability`}>
               <span>Availability *</span>
-              <input name="availability" value={form.availability} onChange={update} required />
+              <input id={`${type}-availability`} name="availability" value={form.availability} onChange={update} required />
             </label>
-            <label className="field">
+            <label className="field" htmlFor={`${type}-transportation`}>
               <span>Transportation access *</span>
-              <select name="transportation" value={form.transportation} onChange={update} required>
+              <select id={`${type}-transportation`} name="transportation" value={form.transportation} onChange={update} required>
                 <option value="">Choose one</option>
                 <option>Yes</option>
                 <option>No</option>
@@ -146,9 +150,9 @@ export function InquiryForm({ type = "contact", compact = false }) {
           </>
         )}
 
-        <label className="field field-full">
+        <label className="field field-full" htmlFor={`${type}-message`}>
           <span>{isCareer ? "Tell us about your interest in caregiving" : "Message"} *</span>
-          <textarea name="message" value={form.message} onChange={update} rows={compact ? 4 : 6} required />
+          <textarea id={`${type}-message`} name="message" value={form.message} onChange={update} rows={compact ? 4 : 6} required />
         </label>
         <label className="consent field-full">
           <input name="consent" type="checkbox" checked={form.consent} onChange={update} required />
@@ -162,7 +166,7 @@ export function InquiryForm({ type = "contact", compact = false }) {
         <span>{status.state === "loading" ? "Sending..." : isCareer ? "Submit Application" : isCare ? "Request Care" : "Send Message"}</span>
       </button>
       {status.message && (
-        <p className={`form-status form-status-${status.state}`} role="status" aria-live="polite">
+        <p ref={statusRef} className={`form-status form-status-${status.state}`} role={status.state === "error" ? "alert" : "status"} aria-live={status.state === "error" ? "assertive" : "polite"} tabIndex="-1">
           {status.message}
         </p>
       )}

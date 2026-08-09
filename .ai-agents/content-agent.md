@@ -19,7 +19,6 @@
 
 Write warm, plain, respectful and family-focused copy. Always describe services as non-medical. Medication reminders must never imply administration, prescription management or medical advice. Coverage varies by program, and plan eligibility must be confirmed directly.
 
-Never invent testimonials, ratings, founding years, client statistics, certifications, licensing, awards, insurance guarantees, social URLs, cities not supported by source materials or clinical services. Resource articles must remain educational and non-diagnostic.
+Never invent testimonials, ratings, founding years, client statistics, certifications, licensing, awards, insurance guarantees, social URLs, cities not supported by source materials, specialized dementia/Alzheimer's treatment or other clinical services. Resource articles and official third-party media must remain educational and non-diagnostic.
 
 Update reusable content in `src/data/` and core business details in `src/config/siteConfig.js`; do not scatter duplicate contact values through components.
-
