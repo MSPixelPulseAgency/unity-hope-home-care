@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { siteConfig, mainNavigation } from "../../config/siteConfig";
 import { services } from "../../data/services";
@@ -9,6 +9,11 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const menuToggleRef = useRef(null);
+  const menuCloseRef = useRef(null);
+  const menuRef = useRef(null);
+  const wasMenuOpen = useRef(false);
+  const lockedScrollY = useRef(0);
   const location = useLocation();
 
   useEffect(() => {
@@ -19,16 +24,66 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle("menu-is-open", menuOpen);
+    const root = document.documentElement;
+    const body = document.body;
+    let focusFrame;
+
+    if (menuOpen) {
+      if (!wasMenuOpen.current) lockedScrollY.current = window.scrollY;
+      body.style.setProperty("--menu-scroll-y", `-${lockedScrollY.current}px`);
+      root.classList.add("menu-is-open");
+      body.classList.add("menu-is-open");
+      focusFrame = window.requestAnimationFrame(() => menuCloseRef.current?.focus({ preventScroll: true }));
+    } else {
+      root.classList.remove("menu-is-open");
+      body.classList.remove("menu-is-open");
+      body.style.removeProperty("--menu-scroll-y");
+
+      if (wasMenuOpen.current) {
+        focusFrame = window.requestAnimationFrame(() => {
+          const previousScrollBehavior = root.style.scrollBehavior;
+          root.style.scrollBehavior = "auto";
+          window.scrollTo(0, lockedScrollY.current);
+          menuToggleRef.current?.focus({ preventScroll: true });
+          root.style.scrollBehavior = previousScrollBehavior;
+        });
+      }
+    }
+    wasMenuOpen.current = menuOpen;
+
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        return;
+      }
+
+      if (event.key === "Tab" && menuOpen) {
+        const focusable = menuRef.current?.querySelectorAll("a[href], button:not([disabled])");
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.classList.remove("menu-is-open");
+      if (focusFrame) window.cancelAnimationFrame(focusFrame);
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  useEffect(() => () => {
+    document.documentElement.classList.remove("menu-is-open");
+    document.body.classList.remove("menu-is-open");
+    document.body.style.removeProperty("--menu-scroll-y");
+  }, []);
 
   return (
     <>
@@ -87,6 +142,7 @@ export function Header() {
               <Icon name="Phone" size={21} />
             </a>
             <button
+              ref={menuToggleRef}
               className="menu-toggle"
               type="button"
               aria-expanded={menuOpen}
@@ -101,10 +157,19 @@ export function Header() {
       </header>
 
       <div className={`menu-scrim ${menuOpen ? "is-open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden="true" />
-      <aside className={`mobile-menu ${menuOpen ? "is-open" : ""}`} id="mobile-menu" aria-hidden={!menuOpen}>
+      <aside
+        ref={menuRef}
+        className={`mobile-menu ${menuOpen ? "is-open" : ""}`}
+        id="mobile-menu"
+        role="dialog"
+        aria-modal={menuOpen ? "true" : undefined}
+        aria-label="Mobile navigation menu"
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
+      >
         <div className="mobile-menu-top">
           <p>How can we help?</p>
-          <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><Icon name="X" size={24} /></button>
+          <button ref={menuCloseRef} type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><Icon name="X" size={24} /></button>
         </div>
         <nav aria-label="Mobile navigation">
           {mainNavigation.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>{item.label}</NavLink>)}
