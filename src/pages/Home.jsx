@@ -18,7 +18,7 @@ import { SectionTitle } from "../components/ui/SectionTitle";
 const faqItems = [
   { question: "What type of care does Unity & Hope provide?", answer: "Unity & Hope provides personalized non-medical home care, including personal care assistance, companionship, meal preparation, light housekeeping, medication reminders, respite care and errands." },
   { question: "Which area does Unity & Hope serve?", answer: "Montgomery County is our primary service area, with surrounding counties shown in our supplied service materials. Call us to confirm service for your exact location." },
-  { question: "How do we get started?", answer: "Call 937-221-9764 or submit the Request Care form. We will learn about your needs and preferences before creating a personalized care plan." },
+  { question: "How do we get started?", answer: `Call ${siteConfig.phone} or submit the Request Care form. We will learn about your needs and preferences before creating a personalized care plan.` },
   { question: "Do you accept private pay or managed care plans?", answer: "Unity & Hope accepts private pay and works with the managed care organizations listed on this site. Coverage varies by program, so please contact us to confirm eligibility and coverage." },
   { question: "Can non-medical care support someone living with dementia or Alzheimer's disease?", answer: "Non-medical companionship, respite care and personal assistance may support everyday routines for some families affected by dementia or Alzheimer's disease. Unity & Hope does not provide medical care or claim specialized dementia treatment. Please call to discuss whether the available non-medical services fit your needs, and direct clinical questions to a licensed healthcare professional." },
   { question: "Is Unity & Hope a home health agency?", answer: "Unity & Hope provides non-medical home care rather than skilled home health services. Caregivers can assist with everyday routines and reminders, but they do not administer medication, diagnose conditions or replace licensed medical professionals." },
@@ -34,7 +34,7 @@ export default function Home() {
         name: siteConfig.companyName,
         url: siteConfig.siteUrl,
         logo: `${siteConfig.siteUrl}/brand/unity-hope-logo.png`,
-        telephone: "+1-937-221-9764",
+        telephone: siteConfig.phoneHref.replace("tel:", ""),
         email: siteConfig.email,
         image: `${siteConfig.siteUrl}/og.jpg`,
         description: siteConfig.description,
@@ -52,7 +52,7 @@ export default function Home() {
         },
         contactPoint: {
           "@type": "ContactPoint",
-          telephone: "+1-937-221-9764",
+          telephone: siteConfig.phoneHref.replace("tel:", ""),
           contactType: "customer service",
           areaServed: "US-OH",
           availableLanguage: "English",

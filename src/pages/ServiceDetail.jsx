@@ -6,6 +6,7 @@ import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
 import NotFound from "./NotFound";
+import { siteConfig } from "../config/siteConfig";
 
 export default function ServiceDetail() {
   const { slug } = useParams();
@@ -17,7 +18,7 @@ export default function ServiceDetail() {
     "@type": "Service",
     name: `${service.title} - Unity & Hope Home Care LLC`,
     description: service.description,
-    provider: { "@type": "LocalBusiness", name: "Unity & Hope Home Care LLC", telephone: "+1-937-221-9764" },
+    provider: { "@type": "LocalBusiness", name: siteConfig.companyName, telephone: siteConfig.phoneHref.replace("tel:", "") },
     areaServed: "Montgomery County, Ohio and surrounding areas",
     serviceType: `Non-medical ${service.title}`,
   };
@@ -42,11 +43,10 @@ export default function ServiceDetail() {
             <nav aria-label="Other home care services">
               {services.map((item) => <Link className={item.slug === slug ? "active" : ""} to={`/services/${item.slug}`} key={item.slug}><Icon name={item.icon} size={18} />{item.shortTitle}<Icon name="ArrowRight" size={15} /></Link>)}
             </nav>
-            <div className="sidebar-call"><Icon name="Phone" size={27} /><h3>Let's talk about care.</h3><p>Start with a free in-home consultation.</p><a href="tel:+19372219764">937-221-9764</a></div>
+            <div className="sidebar-call"><Icon name="Phone" size={27} /><h3>Let's talk about care.</h3><p>Start with a free in-home consultation.</p><a href={siteConfig.phoneHref}>{siteConfig.phone}</a></div>
           </aside>
         </div>
       </section>
     </>
   );
 }
-

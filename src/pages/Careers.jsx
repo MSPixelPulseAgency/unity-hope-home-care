@@ -30,11 +30,10 @@ export default function Careers() {
       </section>
       <section className="section career-form-section">
         <div className="container form-page-grid">
-          <aside className="form-contact-panel reveal"><p className="eyebrow eyebrow-light">Apply to Join Us</p><h2>Tell us about your experience and availability.</h2><p>Complete the form and Unity & Hope will review your interest. Please do not include sensitive identification or medical information.</p><div className="career-note"><Icon name="LockKeyhole" size={21} />Resume upload is intentionally omitted until secure file storage is configured.</div></aside>
+          <aside className="form-contact-panel reveal"><p className="eyebrow eyebrow-light">Apply to Join Us</p><h2>Tell us about your experience and availability.</h2><p>Complete the form and Unity & Hope will review your interest. Please do not include sensitive identification or medical information.</p><div className="career-note"><Icon name="LockKeyhole" size={21} />Optional resumes are securely validated, emailed with the application and never stored on the website.</div></aside>
           <div className="form-card reveal reveal-delay"><div className="form-card-heading"><p className="eyebrow">Caregiver Application</p><h2>Start your application</h2></div><InquiryForm type="career" /></div>
         </div>
       </section>
     </>
   );
 }
-

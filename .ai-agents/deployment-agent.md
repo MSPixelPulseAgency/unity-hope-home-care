@@ -12,9 +12,8 @@
 
 ## Environment variables
 
-Forms require `RESEND_API_KEY` and `CONTACT_FROM_EMAIL`; `CONTACT_TO_EMAIL` should remain `uhhomehealthllc@gmail.com`, and `ALLOWED_ORIGIN` should match the production URL. Never expose secrets to Vite client variables or commit `.env` files.
+Forms require the server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `CONTACT_TO_EMAIL` controls the business notification inbox and should remain `mspixelpulse@gmail.com` until client handoff; `ALLOWED_ORIGIN` must match the production URL. Never expose secrets to Vite client variables or commit `.env` files. Changing only `CONTACT_TO_EMAIL` and redeploying must be sufficient to route notifications to the client later.
 
 ## Production checks
 
 Open the live site and inspect Home, About, Services, a service detail, Request Care, Contact, Careers, Resources and Privacy. Verify direct URLs, mobile/tablet/desktop layouts, correct phone/email links, form error behavior, sitemap, robots, OG image and final QR target.
-

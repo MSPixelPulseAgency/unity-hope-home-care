@@ -5,6 +5,7 @@ import { ServiceArea } from "../components/sections/ServiceArea";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
+import { siteConfig } from "../config/siteConfig";
 
 export default function ServiceAreas() {
   return (
@@ -20,8 +21,7 @@ export default function ServiceAreas() {
           </div>
         </div>
       </section>
-      <section className="section location-cta"><div className="container location-cta-inner"><div><p className="eyebrow eyebrow-light">Not sure if we serve your area?</p><h2>Call us and we’ll confirm your location.</h2></div><Button href="tel:+19372219764" variant="gold" icon="Phone">937-221-9764</Button></div></section>
+      <section className="section location-cta"><div className="container location-cta-inner"><div><p className="eyebrow eyebrow-light">Not sure if we serve your area?</p><h2>Call us and we’ll confirm your location.</h2></div><Button href={siteConfig.phoneHref} variant="gold" icon="Phone">{siteConfig.phone}</Button></div></section>
     </>
   );
 }
-

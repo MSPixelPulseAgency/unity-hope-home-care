@@ -2,6 +2,7 @@ import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
+import { siteConfig } from "../config/siteConfig";
 
 const privacyPoints = [
   ["LockKeyhole", "Secure handling", "Personal information should be accessed and handled only for appropriate business and care-related purposes."],
@@ -25,7 +26,7 @@ export default function Privacy() {
             <p><strong>How information is used.</strong> Submitted information is used to respond to your inquiry, discuss services or review career interest. Do not submit Social Security numbers, financial account details, medical records or other highly sensitive information through a website form.</p>
             <p><strong>Form delivery.</strong> Website forms are delivered through configured hosting and email providers. Information may be processed by those providers to transmit the message.</p>
             <p><strong>Basic technical information.</strong> Hosting providers may process standard technical data such as IP address, browser type and request logs for security, reliability and operation.</p>
-            <p><strong>Contact.</strong> Questions about privacy can be directed to <a href="mailto:uhhomehealthllc@gmail.com">uhhomehealthllc@gmail.com</a> or 937-221-9764.</p>
+            <p><strong>Contact.</strong> Questions about privacy can be directed to <a href={siteConfig.emailHref}>{siteConfig.email}</a> or <a href={siteConfig.phoneHref}>{siteConfig.phone}</a>.</p>
             <p className="legal-review-note"><Icon name="ShieldCheck" size={20} /> This starter policy requires final legal review before public client approval. It does not independently certify regulatory compliance.</p>
           </article>
         </div>
@@ -33,4 +34,3 @@ export default function Privacy() {
     </>
   );
 }
-

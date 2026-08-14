@@ -7,15 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --max-warnings=0",
+    "test": "node --test",
     "preview": "vite preview"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "lucide-react": "latest",
+    "nodemailer": "^9.0.5",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
-    "lucide-react": "latest"
+    "vite": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

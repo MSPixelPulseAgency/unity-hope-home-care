@@ -72,7 +72,7 @@ const createSchema = ({ schema, path, fullTitle, description, canonical }) => {
   return { "@context": "https://schema.org", "@graph": graph };
 };
 
-export function Seo({ title, description, path = "/", image = "/og.jpg", schema, keywords = [] }) {
+export function Seo({ title, description, path = "/", image = "/og.jpg", schema, keywords = [], noIndex = false }) {
   useEffect(() => {
     const fullTitle = title.includes("Unity & Hope") ? title : `${title} | Unity & Hope Home Care LLC`;
     const canonical = new URL(path, siteConfig.siteUrl).toString();
@@ -80,7 +80,7 @@ export function Seo({ title, description, path = "/", image = "/og.jpg", schema,
 
     document.title = fullTitle;
     setMeta("name", "description", description);
-    setMeta("name", "robots", "index, follow, max-image-preview:large");
+    setMeta("name", "robots", noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large");
     setMeta("name", "keywords", [
       "home care",
       "senior care",
@@ -122,7 +122,7 @@ export function Seo({ title, description, path = "/", image = "/og.jpg", schema,
     document.head.appendChild(script);
 
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [description, image, keywords, path, schema, title]);
+  }, [description, image, keywords, noIndex, path, schema, title]);
 
   return null;
 }
