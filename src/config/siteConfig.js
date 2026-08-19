@@ -25,12 +25,18 @@ export const siteConfig = {
     weekends: "Closed",
   },
   siteUrl: "https://unityhope.vercel.app",
+  googleBusinessProfileUrl: null,
   socials: {
     facebook: null,
     instagram: null,
     linkedin: null,
   },
 };
+
+export const externalProfiles = [
+  siteConfig.googleBusinessProfileUrl,
+  ...Object.values(siteConfig.socials),
+].filter(Boolean);
 
 export const mainNavigation = [
   { label: "Home", to: "/" },
@@ -41,4 +47,3 @@ export const mainNavigation = [
   { label: "Careers", to: "/careers" },
   { label: "Contact Us", to: "/contact" },
 ];
-

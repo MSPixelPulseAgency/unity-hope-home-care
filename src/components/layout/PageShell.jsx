@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { GoogleSiteTools } from "../system/GoogleSiteTools";
 
 export function PageShell() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export function PageShell() {
 
   return (
     <>
+      <GoogleSiteTools />
       <a className="skip-link" href="#main-content">Skip to main content</a>
       <Header />
       <main ref={mainRef} id="main-content" tabIndex="-1">

@@ -101,8 +101,8 @@ export function Header() {
       </div>
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="container header-inner">
-          <Link className="brand-lockup" to="/" aria-label="Unity and Hope Home Care LLC home">
-            <img src="/brand/unity-hope-mark.png" alt="" width="68" height="68" />
+          <Link className="brand-lockup" to="/">
+            <img src="/brand/unity-hope-mark.webp" alt="" width="68" height="68" fetchPriority="high" />
             <span className="brand-words">
               <span><strong>Unity</strong> <em>and</em> <b>Hope</b></span>
               <small>Home Care LLC</small>
@@ -175,11 +175,11 @@ export function Header() {
         </div>
         <nav aria-label="Mobile navigation">
           {mainNavigation.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>{item.label}</NavLink>)}
-          <NavLink to="/request-care" onClick={() => setMenuOpen(false)}>Request Care</NavLink>
+          <NavLink to="/request-care" onClick={() => setMenuOpen(false)}>Get Started</NavLink>
         </nav>
         <div className="mobile-menu-cta">
           <Button href={siteConfig.phoneHref} icon="Phone">Call {siteConfig.phone}</Button>
-          <Button to="/request-care" variant="gold">Request Care</Button>
+          <Button to="/request-care" variant="gold">Get Started</Button>
         </div>
       </aside>
     </>

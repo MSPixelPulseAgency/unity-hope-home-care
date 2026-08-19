@@ -4,11 +4,12 @@ import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
+import { pageSeo } from "../data/seo";
 
 export default function Resources() {
   return (
     <>
-      <Seo title="Home Care Resources | Unity & Hope" description="Read clear, respectful resources about non-medical home care, respite care, companionship, home routines and questions families can ask a care provider." path="/resources" />
+      <Seo {...pageSeo.resources} />
       <PageHero eyebrow="Helpful Resources" title="Guidance for Care at Home." description="Practical, non-medical information to help families ask thoughtful questions and feel more prepared." image="/images/family-cooking.webp" imageAlt="A family preparing food together in a bright home" breadcrumbs={[{ label: "Resources" }]} />
       <section className="section resource-library">
         <div className="container">

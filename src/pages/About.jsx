@@ -5,20 +5,22 @@ import { ValuesSection } from "../components/sections/ValuesSection";
 import { WhyAndProcess } from "../components/sections/WhyAndProcess";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
+import { aboutContent } from "../data/content";
+import { pageSeo } from "../data/seo";
+import { TeamSection } from "../components/sections/TeamSection";
 
 export default function About() {
   return (
     <>
-      <Seo title="About Unity & Hope Home Care LLC | Riverside, Ohio" description="Learn about Unity & Hope Home Care LLC's mission to support independence, dignity, comfort and peace of mind through personalized non-medical home care." path="/about" />
+      <Seo {...pageSeo.about} />
       <PageHero eyebrow="About Unity & Hope" title="Compassion. Dignity. Care." description="Dependable, personalized non-medical care in the comfort of home, centered on each client and family." image="/images/brochure-caregiver.webp" imageAlt="A caregiver in purple speaking with an older woman at home" breadcrumbs={[{ label: "About Us" }]} />
 
       <section className="section split-story">
         <div className="container split-story-grid">
           <div className="split-story-copy reveal">
-            <SectionTitle eyebrow="Our Mission" title="Helping every client feel supported at home" align="left" />
-            <p className="lead">Unity & Hope Home Care LLC provides compassionate, dependable and personalized non-medical care in the comfort of clients' homes.</p>
-            <p>Our mission is to enhance quality of life by promoting independence, protecting dignity and providing peace of mind for every client and their family.</p>
-            <p>We take time to understand routines, preferences and goals so support can feel personal, comfortable and respectful.</p>
+            <SectionTitle eyebrow={aboutContent.mission.eyebrow} title={aboutContent.mission.title} align="left" />
+            <p className="lead">{aboutContent.mission.lead}</p>
+            {aboutContent.mission.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
             <Button to="/request-care">Schedule a Free Consultation</Button>
           </div>
           <div className="mission-photo reveal reveal-delay">
@@ -27,6 +29,7 @@ export default function About() {
           </div>
         </div>
       </section>
+      <TeamSection />
       <ValuesSection />
       <WhyAndProcess />
       <section className="section privacy-feature">
@@ -39,4 +42,3 @@ export default function About() {
     </>
   );
 }
-

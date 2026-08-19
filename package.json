@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
     "nodemailer": "^9.0.5",

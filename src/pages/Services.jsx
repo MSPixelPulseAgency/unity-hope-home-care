@@ -4,11 +4,12 @@ import { PageHero } from "../components/ui/PageHero";
 import { ServiceCard } from "../components/ui/ServiceCard";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
+import { pageSeo } from "../data/seo";
 
 export default function Services() {
   return (
     <>
-      <Seo title="Non-Medical Home Care Services | Unity & Hope" description="Explore personal care, companionship, meal preparation, light housekeeping, medication reminders, respite care and errand support in Montgomery County." path="/services" />
+      <Seo {...pageSeo.services} />
       <PageHero eyebrow="Our Services" title="Personalized Care Designed Around You." description="Non-medical support shaped around routines, comfort, dignity and independence." image="/images/unity-hope-hero.webp" imageAlt="A home caregiver in purple sharing a warm moment with an older woman" breadcrumbs={[{ label: "Services" }]} />
       <section className="section services-overview">
         <div className="container">
@@ -17,7 +18,7 @@ export default function Services() {
             {services.map((service, index) => (
               <article className={`service-feature reveal ${index % 2 ? "service-feature-reverse" : ""}`} key={service.slug}>
                 <img src={service.image} alt={`${service.title} support at home`} width="720" height="520" loading="lazy" />
-                <div><span className="service-number">0{index + 1}</span><ServiceCard service={service} featured /><ul>{service.examples.slice(0, 3).map((example) => <li key={example}>{example}</li>)}</ul></div>
+                <div><ServiceCard service={service} featured number={`0${index + 1}`} /><ul>{service.examples.slice(0, 3).map((example) => <li key={example}>{example}</li>)}</ul></div>
               </article>
             ))}
           </div>
@@ -29,4 +30,3 @@ export default function Services() {
     </>
   );
 }
-

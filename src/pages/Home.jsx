@@ -1,4 +1,4 @@
-import { siteConfig } from "../config/siteConfig";
+import { externalProfiles, siteConfig } from "../config/siteConfig";
 import { HomeHero } from "../components/sections/HomeHero";
 import { ServicesGrid } from "../components/sections/ServicesGrid";
 import { WhyAndProcess } from "../components/sections/WhyAndProcess";
@@ -14,15 +14,9 @@ import { services } from "../data/services";
 import { Seo } from "../components/ui/Seo";
 import { Accordion } from "../components/ui/Accordion";
 import { SectionTitle } from "../components/ui/SectionTitle";
-
-const faqItems = [
-  { question: "What type of care does Unity & Hope provide?", answer: "Unity & Hope provides personalized non-medical home care, including personal care assistance, companionship, meal preparation, light housekeeping, medication reminders, respite care and errands." },
-  { question: "Which area does Unity & Hope serve?", answer: "Montgomery County is our primary service area, with surrounding counties shown in our supplied service materials. Call us to confirm service for your exact location." },
-  { question: "How do we get started?", answer: `Call ${siteConfig.phone} or submit the Request Care form. We will learn about your needs and preferences before creating a personalized care plan.` },
-  { question: "Do you accept private pay or managed care plans?", answer: "Unity & Hope accepts private pay and works with the managed care organizations listed on this site. Coverage varies by program, so please contact us to confirm eligibility and coverage." },
-  { question: "Can non-medical care support someone living with dementia or Alzheimer's disease?", answer: "Non-medical companionship, respite care and personal assistance may support everyday routines for some families affected by dementia or Alzheimer's disease. Unity & Hope does not provide medical care or claim specialized dementia treatment. Please call to discuss whether the available non-medical services fit your needs, and direct clinical questions to a licensed healthcare professional." },
-  { question: "Is Unity & Hope a home health agency?", answer: "Unity & Hope provides non-medical home care rather than skilled home health services. Caregivers can assist with everyday routines and reminders, but they do not administer medication, diagnose conditions or replace licensed medical professionals." },
-];
+import { homepageContent } from "../data/content";
+import { pageSeo } from "../data/seo";
+import { Testimonials } from "../components/sections/Testimonials";
 
 export default function Home() {
   const schema = {
@@ -71,10 +65,11 @@ export default function Home() {
           })),
         },
         openingHoursSpecification: [{ "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "17:00" }],
+        ...(externalProfiles.length ? { sameAs: externalProfiles } : {}),
       },
       {
         "@type": "FAQPage",
-        mainEntity: faqItems.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
+        mainEntity: homepageContent.faqs.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
       },
     ],
   };
@@ -82,14 +77,14 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Unity & Hope Home Care LLC | Compassionate Home Care in Montgomery County"
-        description="Compassionate, dependable non-medical home care in Riverside, Ohio, serving Montgomery County and surrounding areas. Request a free in-home consultation."
+        {...pageSeo.home}
         schema={schema}
       />
       <HomeHero />
       <ServicesGrid />
       <WhyAndProcess />
       <CaregiverConfidence />
+      <Testimonials />
       <ServiceArea />
       <CommunityCareGallery />
       <HomeStory />
@@ -99,7 +94,7 @@ export default function Home() {
       <section className="section faq-section">
         <div className="container faq-layout">
           <SectionTitle eyebrow="Frequently Asked Questions" title="Helpful answers before you call" description="Every care need is personal. These answers offer a simple starting point." align="left" />
-          <Accordion items={faqItems} />
+          <Accordion items={homepageContent.faqs} />
         </div>
       </section>
       <EmergencyHelp />

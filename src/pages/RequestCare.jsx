@@ -3,12 +3,13 @@ import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { InquiryForm } from "../components/ui/InquiryForm";
 import { Icon } from "../components/ui/Icon";
+import { pageSeo } from "../data/seo";
 
 export default function RequestCare() {
   return (
     <>
-      <Seo title="Request Home Care | Unity & Hope Home Care LLC" description="Tell Unity & Hope about your care needs and request a free in-home consultation for non-medical home care in Montgomery County and surrounding areas." path="/request-care" />
-      <PageHero eyebrow="Free In-Home Consultation" title="Let's Talk About Your Care Needs." description="Share what support would help. A member of the Unity & Hope team will follow up to learn more." image="/images/holding-hands.webp" imageAlt="A caregiver holding an older adult's hands in reassurance" breadcrumbs={[{ label: "Request Care" }]} />
+      <Seo {...pageSeo.requestCare} />
+      <PageHero eyebrow="Free In-Home Consultation" title="Get Started With Care at Home." description="Share what support would help. A member of the Unity & Hope team will follow up to learn more." image="/images/holding-hands.webp" imageAlt="A caregiver holding an older adult's hands in reassurance" breadcrumbs={[{ label: "Get Started" }]} />
       <section className="section form-page-section">
         <div className="container form-page-grid">
           <aside className="form-contact-panel reveal">

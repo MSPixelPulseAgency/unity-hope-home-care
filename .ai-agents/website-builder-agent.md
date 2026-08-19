@@ -6,6 +6,8 @@ Maintain **Unity & Hope Home Care LLC** as a standalone React/Vite website. The 
 
 Core contact details live only in `src/config/siteConfig.js`: `937-221-9764`, `uhhomehealthllc@gmail.com`, `101 Woodman Dr. Suite 212B, Riverside, Ohio 45431`, and fax `937-496-5220`. Preserve the non-medical home care positioning.
 
+Routine homepage/About content lives in `src/data/content.js`; services, service areas, testimonials, team, resources and core SEO each have dedicated files in `src/data/`. Do not re-scatter those values across page components or show empty testimonial/team sections.
+
 ## Page structure
 
 The app includes Home, About, Services, seven service details, Service Areas, Request Care, Contact, Careers, Resources, resource articles, Privacy and 404 routes. Keep shared layout in `src/components/layout`, reusable UI in `src/components/ui`, and page sections in `src/components/sections`.

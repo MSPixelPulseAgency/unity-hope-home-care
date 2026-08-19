@@ -38,6 +38,32 @@ Never expose the Gmail app password through a `VITE_` variable or commit it to G
 
 To route future form notifications to the client, change only `CONTACT_TO_EMAIL` in Vercel Production and redeploy. `GMAIL_USER` remains the authenticated sender unless the client later provides a different approved SMTP account.
 
+## Routine content management
+
+Routine business content is centralized so future updates do not require searching through page components:
+
+- `src/config/siteConfig.js`: contact information, hours, production URL and approved external profiles
+- `src/data/content.js`: homepage, process, FAQ and verified About mission copy
+- `src/data/services.js`: services and service-page content
+- `src/data/serviceAreas.js`: service-region language and map references
+- `src/data/testimonials.js`: client-approved testimonials; hidden automatically while empty
+- `src/data/team.js`: client-approved team profiles; hidden automatically while empty
+- `src/data/resources.js`: resource articles and optional article metadata
+- `src/data/seo.js`: editable titles and descriptions for core routes
+
+See `docs/content-management.md` for the safe editing and publishing workflow. The website intentionally does not include a public admin password or database. Form inquiries and resumes continue to be managed through the configured business inbox and are not permanently stored by the website.
+
+## Google readiness
+
+The site already publishes `robots.txt`, an XML sitemap, canonical URLs and LocalBusiness, Service, Breadcrumb and FAQ structured data. Optional Google tools are inactive until valid public configuration values are added in Vercel:
+
+```env
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+VITE_GOOGLE_SITE_VERIFICATION=<Search Console HTML-tag token>
+```
+
+Only set Google Analytics after the owner has approved the measurement/privacy approach. Add an approved Google Business Profile URL to `googleBusinessProfileUrl` in `src/config/siteConfig.js`. Never invent an analytics ID, verification token, review URL or business profile.
+
 ## Deployment
 
 - Framework: Vite

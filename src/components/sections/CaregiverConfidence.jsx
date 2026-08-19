@@ -1,29 +1,7 @@
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 import { SectionTitle } from "../ui/SectionTitle";
-
-const confidencePoints = [
-  {
-    icon: "ShieldCheck",
-    title: "Carefully screened and trained",
-    text: "The Unity & Hope brochure confirms that caregivers are carefully screened and trained for dependable non-medical support.",
-  },
-  {
-    icon: "MessageCircleHeart",
-    title: "Preferences come first",
-    text: "The first conversation covers routines, comfort, communication preferences and the kind of help that would feel welcome.",
-  },
-  {
-    icon: "UserCheck",
-    title: "A thoughtful care match",
-    text: "Care needs, schedule and personal preferences help guide an appropriate caregiver match and personalized plan.",
-  },
-  {
-    icon: "UsersRound",
-    title: "Family-centered planning",
-    text: "With the client's permission, family members can be part of the care conversation and ongoing planning.",
-  },
-];
+import { homepageContent } from "../../data/content";
 
 export function CaregiverConfidence() {
   return (
@@ -47,7 +25,7 @@ export function CaregiverConfidence() {
             align="left"
           />
           <div className="confidence-point-grid">
-            {confidencePoints.map((point) => (
+            {homepageContent.caregiverConfidence.map((point) => (
               <article className="confidence-point" key={point.title}>
                 <span><Icon name={point.icon} size={24} /></span>
                 <div><h3>{point.title}</h3><p>{point.text}</p></div>

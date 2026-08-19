@@ -21,4 +21,4 @@ Write warm, plain, respectful and family-focused copy. Always describe services 
 
 Never invent testimonials, ratings, founding years, client statistics, certifications, licensing, awards, insurance guarantees, social URLs, cities not supported by source materials, specialized dementia/Alzheimer's treatment or other clinical services. Resource articles and official third-party media must remain educational and non-diagnostic.
 
-Update reusable content in `src/data/` and core business details in `src/config/siteConfig.js`; do not scatter duplicate contact values through components.
+Update reusable content in `src/data/` and core business details in `src/config/siteConfig.js`; do not scatter duplicate contact values through components. Core page metadata lives in `src/data/seo.js`, homepage/About copy in `src/data/content.js`, and client-approved testimonials/team profiles in `src/data/testimonials.js` and `src/data/team.js`. Empty testimonial and team data must remain hidden rather than replaced with placeholders.

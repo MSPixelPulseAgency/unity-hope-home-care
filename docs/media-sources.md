@@ -14,6 +14,10 @@ Pexels marked these photo pages as free to use when selected. The site describes
 
 - `public/images/unity-hope-hero-clean.webp` - A non-destructive edited variant of the existing approved Unity & Hope hero image. The printed badge was removed so the HTML badge can remain readable and responsive. The original `public/images/unity-hope-hero.webp` remains in the repository.
 
+## Optimized official brand asset
+
+- `public/brand/unity-hope-mark.webp` - A 192-pixel WebP derivative of the supplied official emblem for the site header. It preserves transparency and aspect ratio while avoiding the much larger source PNG download.
+
 ## Official educational media
 
 Official CDC video and National Institute on Aging resource URLs are centralized in `src/data/educationalResources.js`. Unity & Hope does not host or claim ownership of those third-party resources.

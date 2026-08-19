@@ -7,6 +7,7 @@ Use factual, natural local language around Unity & Hope Home Care LLC, home care
 ## Technical rules
 
 - Every route needs a unique title, description and canonical URL through `src/components/ui/Seo.jsx`.
+- Maintain core editable titles and descriptions in `src/data/seo.js`; service and resource detail metadata may be overridden in their own data entries.
 - Preserve `public/sitemap.xml`, `public/robots.txt`, `public/og.jpg` and the production host `https://unityhope.vercel.app`.
 - Keep factual Organization, LocalBusiness, WebPage, Service, Breadcrumb and FAQ schema only.
 - Never add Review or AggregateRating schema without verified customer reviews.

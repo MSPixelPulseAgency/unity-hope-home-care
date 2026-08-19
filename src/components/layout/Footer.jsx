@@ -67,10 +67,9 @@ export function Footer() {
         </div>
       </footer>
       <div className="mobile-action-bar" aria-label="Quick contact actions">
-        <a href={siteConfig.phoneHref}><Icon name="Phone" size={19} /> Call Now</a>
-        <Link to="/request-care"><Icon name="HeartHandshake" size={19} /> Request Care</Link>
+        <a href={siteConfig.phoneHref}><Icon name="Phone" size={19} /> Call Unity &amp; Hope</a>
+        <Link to="/request-care"><Icon name="HeartHandshake" size={19} /> Get Started</Link>
       </div>
     </>
   );
 }
-

@@ -3,12 +3,13 @@ import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { InquiryForm } from "../components/ui/InquiryForm";
 import { Icon } from "../components/ui/Icon";
+import { pageSeo } from "../data/seo";
 
 export default function Contact() {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteConfig.fullAddress)}`;
   return (
     <>
-      <Seo title="Contact Unity & Hope Home Care LLC | Riverside OH" description={`Contact Unity & Hope Home Care LLC in Riverside, Ohio. Call ${siteConfig.phone} for compassionate non-medical home care in Montgomery County.`} path="/contact" />
+      <Seo {...pageSeo.contact} />
       <PageHero eyebrow="Contact Unity & Hope" title="We’re Ready to Listen." description="Call, email or send a message to start a conversation about non-medical care at home." image="/images/coffee-conversation.webp" imageAlt="A caregiver speaking with an older adult at a kitchen table" breadcrumbs={[{ label: "Contact" }]} />
       <section className="section contact-section">
         <div className="container contact-grid">

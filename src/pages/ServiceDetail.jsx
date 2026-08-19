@@ -25,7 +25,7 @@ export default function ServiceDetail() {
 
   return (
     <>
-      <Seo title={`${service.title} in Montgomery County | Unity & Hope`} description={`${service.description} Learn how Unity & Hope provides personalized non-medical ${service.title.toLowerCase()} in Riverside and Montgomery County, Ohio.`} path={`/services/${service.slug}`} schema={schema} />
+      <Seo title={service.seoTitle || `${service.title} in Montgomery County | Unity & Hope`} description={service.seoDescription || `${service.description} Learn how Unity & Hope provides personalized non-medical ${service.title.toLowerCase()} in Riverside and Montgomery County, Ohio.`} path={`/services/${service.slug}`} schema={schema} />
       <PageHero eyebrow="Non-Medical Home Care" title={service.title} description={service.description} image={service.image} imageAlt={`${service.title} support in a comfortable home setting`} breadcrumbs={[{ label: "Services", to: "/services" }, { label: service.shortTitle }]} />
       <section className="section detail-section">
         <div className="container detail-grid">

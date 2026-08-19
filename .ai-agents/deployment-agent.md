@@ -14,6 +14,8 @@
 
 Forms require the server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `CONTACT_TO_EMAIL` controls the business notification inbox and should remain `mspixelpulse@gmail.com` until client handoff; `ALLOWED_ORIGIN` must match the production URL. Never expose secrets to Vite client variables or commit `.env` files. Changing only `CONTACT_TO_EMAIL` and redeploying must be sufficient to route notifications to the client later.
 
+`VITE_GA_MEASUREMENT_ID` and `VITE_GOOGLE_SITE_VERIFICATION` are optional public Google configuration values. Leave them blank until the client supplies valid values and approves analytics/privacy use. They are not substitutes for the server-only Gmail settings.
+
 ## Production checks
 
 Open the live site and inspect Home, About, Services, a service detail, Request Care, Contact, Careers, Resources and Privacy. Verify direct URLs, mobile/tablet/desktop layouts, correct phone/email links, form error behavior, sitemap, robots, OG image and final QR target.

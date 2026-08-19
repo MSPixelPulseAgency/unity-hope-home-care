@@ -3,6 +3,7 @@ import { PageHero } from "../components/ui/PageHero";
 import { InquiryForm } from "../components/ui/InquiryForm";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
+import { pageSeo } from "../data/seo";
 
 const qualities = [
   ["Heart", "Compassionate", "You approach clients and families with warmth, patience and empathy."],
@@ -14,7 +15,7 @@ const qualities = [
 export default function Careers() {
   return (
     <>
-      <Seo title="Caregiver Careers | Unity & Hope Home Care LLC" description="Explore caregiver opportunities with Unity & Hope Home Care LLC in Riverside and Montgomery County, Ohio. Join a team built around compassion, dignity and reliability." path="/careers" />
+      <Seo {...pageSeo.careers} />
       <PageHero eyebrow="Caregiver Careers" title="Join a Team Built Around Compassion." description="Bring patience, reliability and respect to work that helps people feel supported at home." image="/images/caregiver-team.webp" imageAlt="Caregivers and senior adults together in a home setting" breadcrumbs={[{ label: "Careers" }]} />
       <section className="section careers-values">
         <div className="container">
