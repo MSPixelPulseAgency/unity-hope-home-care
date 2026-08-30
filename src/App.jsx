@@ -11,6 +11,7 @@ import Careers from "./pages/Careers";
 import Resources from "./pages/Resources";
 import ResourceArticle from "./pages/ResourceArticle";
 import Privacy from "./pages/Privacy";
+import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: "/resources", element: <Resources /> },
       { path: "/resources/:slug", element: <ResourceArticle /> },
       { path: "/privacy", element: <Privacy /> },
+      { path: "/reviews", element: <Reviews /> },
       { path: "*", element: <NotFound /> },
     ],
   },
@@ -36,4 +38,3 @@ const router = createBrowserRouter([
 export default function App() {
   return <RouterProvider router={router} />;
 }
-

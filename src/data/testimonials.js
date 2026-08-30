@@ -1,9 +1,8 @@
 export const testimonialSectionContent = {
   eyebrow: "Family Experiences",
   title: "What families are saying",
-  description: "Verified feedback from Unity & Hope clients and families.",
+  description: "Approved feedback shared by Unity & Hope clients, families and community members.",
 };
 
-// Add only client-approved testimonials. The section stays hidden while empty.
-// Shape: { quote, name, relationship, source }
+// Legacy content remains empty. Approved reviews load securely from the server.
 export const testimonials = [];

@@ -24,7 +24,7 @@ export const siteConfig = {
     weekendsLabel: "Saturday & Sunday",
     weekends: "Closed",
   },
-  siteUrl: "https://unityhope.vercel.app",
+  siteUrl: "https://uhhomehealth.com",
   googleBusinessProfileUrl: null,
   socials: {
     facebook: null,

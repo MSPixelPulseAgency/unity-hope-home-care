@@ -33,7 +33,7 @@ export function Footer() {
           <section className="footer-qr" aria-labelledby="footer-qr-heading">
             <h2 id="footer-qr-heading">Scan to Visit</h2>
             <div className="qr-frame">
-              <img src="/brand/unity-hope-qr.png" alt="QR code for unityhope.vercel.app" width="150" height="150" />
+              <img src="/brand/unity-hope-qr.png" alt="QR code for uhomehealth.com" width="150" height="150" />
             </div>
             <p>Point your camera here to open our website.</p>
           </section>
@@ -47,6 +47,7 @@ export function Footer() {
               <Link to="/resources">Resources</Link>
               <Link to="/careers">Careers</Link>
               <Link to="/contact">Contact Us</Link>
+              <Link to="/reviews">Share a Review</Link>
               <Link to="/privacy">Privacy Policy</Link>
             </div>
           </section>

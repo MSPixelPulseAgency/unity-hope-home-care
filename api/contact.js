@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { isAllowedRequestOrigin } from "./_request-security.js";
 
 const rateLimit = new Map();
 const submissions = new Map();
@@ -49,6 +50,8 @@ const FORM_DETAILS = {
     confirmationSubject: "We Received Your Message - Unity & Hope Home Care",
     confirmationHeading: "We received your message",
     confirmationCopy: "Thank you for contacting Unity & Hope Home Care LLC. We received your information successfully. A member of our team will review your message and follow up with you.",
+    callLabel: "Call Customer",
+    emailLabel: "Reply by Email",
   },
   "request-care": {
     label: "Care Request",
@@ -56,6 +59,8 @@ const FORM_DETAILS = {
     confirmationSubject: "We Received Your Care Request - Unity & Hope Home Care",
     confirmationHeading: "We received your care request",
     confirmationCopy: "Thank you for contacting Unity & Hope Home Care LLC. We received your care request successfully. A member of our team will review the information and follow up with you.",
+    callLabel: "Call Care Request",
+    emailLabel: "Reply by Email",
   },
   career: {
     label: "Caregiver Application",
@@ -63,6 +68,8 @@ const FORM_DETAILS = {
     confirmationSubject: "We Received Your Application - Unity & Hope Home Care",
     confirmationHeading: "We received your application",
     confirmationCopy: "Thank you for your interest in caregiving opportunities with Unity & Hope Home Care LLC. We received your application successfully and our team will review it.",
+    callLabel: "Call Applicant",
+    emailLabel: "Email Applicant",
   },
 };
 
@@ -292,8 +299,8 @@ export const createNotificationEmail = (data) => {
       </td></tr>
       <tr><td style="padding:10px 30px 28px;">
         <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-          <td style="padding:0 10px 10px 0;"><a href="tel:${escapeHtml(phoneHref)}" style="display:inline-block;padding:12px 17px;border-radius:9px;background:#30105b;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">Call ${escapeHtml(data.name)}</a></td>
-          <td style="padding:0 0 10px;"><a href="mailto:${escapeHtml(data.email)}" style="display:inline-block;padding:11px 17px;border:1px solid #d59a19;border-radius:9px;color:#30105b;text-decoration:none;font-size:15px;font-weight:700;">Email ${escapeHtml(data.name)}</a></td>
+          <td style="padding:0 10px 10px 0;"><a href="tel:${escapeHtml(phoneHref)}" style="display:inline-block;padding:12px 17px;border-radius:9px;background:#30105b;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">${escapeHtml(details.callLabel)}</a></td>
+          <td style="padding:0 0 10px;"><a href="mailto:${escapeHtml(data.email)}" style="display:inline-block;padding:11px 17px;border:1px solid #d59a19;border-radius:9px;color:#30105b;text-decoration:none;font-size:15px;font-weight:700;">${escapeHtml(details.emailLabel)}</a></td>
         </tr></table>
         <p style="margin:12px 0 0;color:#625968;font-size:12px;line-height:1.6;">Reply to this notification to respond directly to ${escapeHtml(data.email)}. Do not forward sensitive applicant or client information unnecessarily.</p>
       </td></tr>
@@ -349,9 +356,8 @@ const safeMailError = (error) => ({
 export default async function handler(request, response) {
   if (request.method !== "POST") return response.status(405).json({ error: "Method not allowed." });
 
-  const allowedOrigin = process.env.ALLOWED_ORIGIN;
   const origin = request.headers.origin;
-  if (allowedOrigin && origin && origin !== allowedOrigin && !origin.startsWith("http://127.0.0.1") && !origin.startsWith("http://localhost")) {
+  if (!isAllowedRequestOrigin(origin)) {
     return response.status(403).json({ error: "This request origin is not allowed." });
   }
 
@@ -407,7 +413,7 @@ export default async function handler(request, response) {
       html: notification.html,
       text: notification.text,
       attachments,
-      messageId: `<unity-hope-notification-${idempotencyKey}@unityhope.vercel.app>`,
+      messageId: `<unity-hope-notification-${idempotencyKey}@uhhomehealth.com>`,
     });
     submissions.set(idempotencyKey, { state: "complete", createdAt: Date.now() });
   } catch (error) {
@@ -425,7 +431,7 @@ export default async function handler(request, response) {
       subject: confirmation.subject,
       html: confirmation.html,
       text: confirmation.text,
-      messageId: `<unity-hope-confirmation-${idempotencyKey}@unityhope.vercel.app>`,
+      messageId: `<unity-hope-confirmation-${idempotencyKey}@uhhomehealth.com>`,
     });
   } catch (error) {
     console.error("Customer confirmation email failed", safeMailError(error));

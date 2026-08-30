@@ -148,6 +148,8 @@ test("builds branded HTML and plain-text messages without HTML injection", () =>
   assert.doesNotMatch(notification.html, /Test <Family>/);
   assert.match(notification.html, /Test &lt;Family&gt;/);
   assert.match(notification.text, /FULL NAME: Test <Family>/i);
+  assert.match(notification.html, /Call Customer/);
+  assert.match(notification.html, /Reply by Email/);
   assert.match(confirmation.html, /We received your message/i);
   assert.match(confirmation.text, /937-221-9764/);
 });
@@ -159,7 +161,7 @@ test("Nodemailer JSON transport preserves text, HTML, reply-to and resume attach
   const transporter = nodemailer.createTransport({ jsonTransport: true });
   const info = await transporter.sendMail({
     from: { name: "Unity & Hope Website", address: "mspixelpulse@gmail.com" },
-    to: "mspixelpulse@gmail.com",
+    to: "uhhomehealthllc@gmail.com",
     replyTo: { name: data.name, address: data.email },
     subject: notification.subject,
     html: notification.html,
@@ -176,11 +178,24 @@ test("Nodemailer JSON transport preserves text, HTML, reply-to and resume attach
   assert.equal(message.attachments[0].filename, "test-resume.pdf");
   assert.match(message.html, /New Caregiver Application/i);
   assert.match(message.text, /CAREGIVER APPLICATION/i);
+  assert.match(message.html, /Call Applicant/);
+  assert.match(message.html, /Email Applicant/);
+});
+
+test("uses the requested care-notification actions", () => {
+  const validation = validateSubmission(baseSubmission({
+    formType: "request-care",
+    relationship: "Parent",
+    contactMethod: "Phone",
+  }), now);
+  const notification = createNotificationEmail(validation.value.data);
+  assert.match(notification.html, /Call Care Request/);
+  assert.match(notification.html, /Reply by Email/);
 });
 
 test("rejects disallowed origins before processing a form", async () => {
   const previousOrigin = process.env.ALLOWED_ORIGIN;
-  process.env.ALLOWED_ORIGIN = "https://unityhope.vercel.app";
+  process.env.ALLOWED_ORIGIN = "https://uhhomehealth.com,https://www.uhhomehealth.com,https://unityhope.vercel.app";
 
   const result = { status: 200, body: null };
   const response = {

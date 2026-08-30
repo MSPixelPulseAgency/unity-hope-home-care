@@ -43,8 +43,13 @@ export const pageSeo = {
   },
   privacy: {
     title: "Privacy Policy | Unity & Hope Home Care LLC",
-    description: "Read Unity & Hope Home Care LLC's confidentiality principles and website privacy starter policy.",
+    description: "Read how Unity & Hope Home Care LLC handles website inquiries, career applications, reviews and other information submitted through this website.",
     path: "/privacy",
+  },
+  reviews: {
+    title: "Home Care Reviews | Unity & Hope Home Care LLC",
+    description: "Read approved family experiences or share feedback about Unity & Hope Home Care LLC and its non-medical home care services in Montgomery County, Ohio.",
+    path: "/reviews",
   },
   notFound: {
     title: "Page Not Found | Unity & Hope Home Care LLC",

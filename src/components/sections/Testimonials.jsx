@@ -1,21 +1,35 @@
-import { testimonialSectionContent, testimonials } from "../../data/testimonials";
+import { useEffect, useState } from "react";
+import { testimonialSectionContent } from "../../data/testimonials";
 import { SectionTitle } from "../ui/SectionTitle";
 
 export function Testimonials() {
-  if (!testimonials.length) return null;
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/reviews", { signal: controller.signal, headers: { Accept: "application/json" } })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Reviews unavailable")))
+      .then((result) => setReviews(Array.isArray(result.reviews) ? result.reviews : []))
+      .catch((error) => {
+        if (error.name !== "AbortError") setReviews([]);
+      });
+    return () => controller.abort();
+  }, []);
+
+  if (!reviews.length) return null;
 
   return (
-    <section className="section testimonials-section">
+    <section className="section testimonials-section" aria-labelledby="approved-reviews-heading">
       <div className="container">
-        <SectionTitle {...testimonialSectionContent} />
+        <div id="approved-reviews-heading"><SectionTitle {...testimonialSectionContent} /></div>
         <div className="testimonial-grid">
-          {testimonials.map((testimonial) => (
-            <figure className="testimonial-card reveal" key={`${testimonial.name}-${testimonial.quote}`}>
-              <blockquote>“{testimonial.quote}”</blockquote>
+          {reviews.map((review) => (
+            <figure className="testimonial-card reveal" key={review.id}>
+              {review.rating && <div className="review-stars" role="img" aria-label={`${review.rating} out of 5 stars`}>{"★".repeat(review.rating)}<span aria-hidden="true">{"☆".repeat(5 - review.rating)}</span></div>}
+              <blockquote>“{review.reviewText}”</blockquote>
               <figcaption>
-                <strong>{testimonial.name}</strong>
-                {testimonial.relationship && <span>{testimonial.relationship}</span>}
-                {testimonial.source && <small>{testimonial.source}</small>}
+                <strong>{review.name}</strong>
+                <span>{review.relationship}</span>
               </figcaption>
             </figure>
           ))}

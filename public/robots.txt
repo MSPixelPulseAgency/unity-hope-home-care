@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://unityhope.vercel.app/sitemap.xml
-
+Sitemap: https://uhhomehealth.com/sitemap.xml

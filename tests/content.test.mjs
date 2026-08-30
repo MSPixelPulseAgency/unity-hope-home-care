@@ -20,7 +20,7 @@ test("keeps core SEO titles and paths unique", () => {
   assert.ok(entries.every((entry) => entry.noIndex || entry.description.length >= 50));
 });
 
-test("publishes verified roadmap content without placeholder trust claims", () => {
+test("publishes verified content without placeholder trust claims", () => {
   assert.match(homepageContent.hero.description, /non-medical home care/i);
   assert.match(aboutContent.mission.lead, /Unity & Hope Home Care LLC/);
   assert.equal(testimonials.length, 0);

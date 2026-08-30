@@ -3942,7 +3942,7 @@ h3 {
   color: var(--purple-950);
 }
 
-/* Client-roadmap refinements */
+/* Trust-content refinements */
 .service-card.service-card-featured {
   min-height: 0;
   display: flex;
@@ -3999,6 +3999,32 @@ h3 {
   color: var(--purple-900);
   font-size: 1.25rem;
   line-height: 1.7;
+}
+
+.review-stars {
+  margin-bottom: 14px;
+  color: var(--gold-600);
+  font-size: 1.45rem;
+  letter-spacing: .08em;
+  line-height: 1.2;
+}
+
+.review-stars span {
+  color: #c9bdcf;
+}
+
+.review-page-section {
+  background: linear-gradient(180deg, white, var(--lavender-50));
+}
+
+.review-form .field-help {
+  max-width: 66ch;
+}
+
+.review-form .form-submit:disabled {
+  cursor: wait;
+  opacity: .72;
+  transform: none;
 }
 
 .testimonial-card figcaption,

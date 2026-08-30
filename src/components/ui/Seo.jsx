@@ -20,6 +20,7 @@ const breadcrumbLabelMap = {
   careers: "Careers",
   resources: "Resources",
   privacy: "Privacy",
+  reviews: "Reviews",
 };
 
 const createSchema = ({ schema, path, fullTitle, description, canonical }) => {
