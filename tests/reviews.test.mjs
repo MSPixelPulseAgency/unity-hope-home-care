@@ -61,6 +61,10 @@ test("creates action-specific signed moderation tokens that expire safely", () =
   assert.equal(parseModerationToken({ token: approveToken, action: "decline", now, secret }).error, "invalid");
   assert.equal(parseModerationToken({ token: `${approveToken}x`, action: "approve", now, secret }).error, "invalid");
   assert.equal(parseModerationToken({ token: approveToken, action: "approve", now: now + REVIEW_TOKEN_LIFETIME_MS + 1, secret }).error, "expired");
+
+  const withdrawalToken = createModerationToken({ id, action: "withdraw", expiresAt, secret, nonce: "controlled_withdrawal_nonce" });
+  assert.equal(parseModerationToken({ token: withdrawalToken, action: "withdraw", now, secret }).value.action, "withdraw");
+  assert.equal(parseModerationToken({ token: withdrawalToken, action: "approve", now, secret }).error, "invalid");
 });
 
 test("builds branded review approval HTML and text without HTML injection", () => {

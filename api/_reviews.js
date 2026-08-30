@@ -29,7 +29,7 @@ const RATE_PREFIX = "review-rate/";
 const REVIEW_ID_PATTERN = /^[a-f0-9]{32}$/;
 const IDEMPOTENCY_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
 const TOKEN_PATTERN = /^[A-Za-z0-9._-]{80,500}$/;
-const VALID_ACTIONS = new Set(["approve", "decline"]);
+const VALID_ACTIONS = new Set(["approve", "decline", "withdraw"]);
 
 const removeControlCharacters = (value) => Array.from(value)
   .filter((character) => {
@@ -171,6 +171,7 @@ export const createPendingReview = async ({ data, now = Date.now(), secret = rev
   const tokenExpiresAt = new Date(now + REVIEW_TOKEN_LIFETIME_MS).toISOString();
   const approveToken = createModerationToken({ id, action: "approve", expiresAt: tokenExpiresAt, secret });
   const declineToken = createModerationToken({ id, action: "decline", expiresAt: tokenExpiresAt, secret });
+  const withdrawalToken = createModerationToken({ id, action: "withdraw", expiresAt: tokenExpiresAt, secret });
   const review = {
     id,
     name: data.name,
@@ -184,6 +185,7 @@ export const createPendingReview = async ({ data, now = Date.now(), secret = rev
     rejected_at: null,
     approval_token_hash: sha256(approveToken),
     rejection_token_hash: sha256(declineToken),
+    withdrawal_token_hash: sha256(withdrawalToken),
     token_expires_at: tokenExpiresAt,
   };
 
@@ -193,7 +195,7 @@ export const createPendingReview = async ({ data, now = Date.now(), secret = rev
       contentType: "application/json",
       cacheControlMaxAge: 60,
     });
-    return { duplicate: false, review, etag: result.etag, approveToken, declineToken };
+    return { duplicate: false, review, etag: result.etag, approveToken, declineToken, withdrawalToken };
   } catch (error) {
     const duplicate = await readReview(id).catch(() => null);
     if (duplicate) return { duplicate: true, review: duplicate.value };
@@ -271,6 +273,23 @@ export const moderateReview = async ({ token, action, now = Date.now(), secret =
       ifMatch: inspected.value.etag,
     });
     return { value: updated };
+  } catch (error) {
+    if (error instanceof BlobPreconditionFailedError) return { error: "used" };
+    throw error;
+  }
+};
+
+export const withdrawReview = async ({ token, now = Date.now(), secret = reviewSecret() }) => {
+  const parsed = parseModerationToken({ token, action: "withdraw", now, secret });
+  if (parsed.error) return parsed;
+  const stored = await readReview(parsed.value.id);
+  if (!stored) return { error: "used" };
+  if (new Date(stored.value.token_expires_at).getTime() <= now) return { error: "expired" };
+  if (stored.value.withdrawal_token_hash !== parsed.value.tokenHash) return { error: "invalid" };
+
+  try {
+    await del(reviewPath(parsed.value.id), { ifMatch: stored.etag });
+    return { value: { id: parsed.value.id } };
   } catch (error) {
     if (error instanceof BlobPreconditionFailedError) return { error: "used" };
     throw error;

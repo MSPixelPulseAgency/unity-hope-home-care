@@ -43,7 +43,7 @@ Never expose the Gmail app password through a `VITE_` variable or commit it to G
 
 The public `/reviews` page submits consented feedback to `api/reviews.js`. Reviews are stored as private records in the Vercel Blob store connected to the existing Vercel project. New records remain `pending` until the client uses the branded approval email.
 
-Approve and decline links are action-specific, HMAC-signed, expire after 30 days and open a confirmation page before any change. The final status update uses a conditional write, clears both token hashes and fails safely if a link is invalid, expired or reused. Only consented `approved` reviews are returned by the public API; rejected and pending reviews never appear on the website.
+Approve and decline links are action-specific, HMAC-signed, expire after 30 days and open a confirmation page before any change. The final status update uses a conditional write, clears both moderation token hashes and fails safely if a link is invalid, expired or reused. A separate signed withdrawal token lets the original submission be removed without exposing storage credentials. Only consented `approved` reviews are returned by the public API; rejected and pending reviews never appear on the website.
 
 ## Routine content management
 

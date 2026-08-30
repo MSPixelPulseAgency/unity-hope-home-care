@@ -7,6 +7,7 @@ import {
   removePendingReview,
   reviewSecret,
   validateReviewSubmission,
+  withdrawReview,
 } from "./_reviews.js";
 import {
   isAllowedRequestOrigin,
@@ -39,6 +40,26 @@ export default async function handler(request, response) {
     } catch (error) {
       console.error("Approved reviews could not be loaded", { code: error?.name || "UNKNOWN" });
       return response.status(503).json({ error: "Reviews are temporarily unavailable." });
+    }
+  }
+
+  if (request.method === "DELETE") {
+    if (!isAllowedRequestOrigin(request.headers.origin)) return response.status(403).json({ error: "This request origin is not allowed." });
+    let deleteBody;
+    try {
+      deleteBody = typeof request.body === "string" ? JSON.parse(request.body || "{}") : (request.body || {});
+    } catch {
+      return response.status(400).json({ error: "Please send a valid withdrawal request." });
+    }
+    const token = normalizeText(deleteBody.token);
+    if (!token || !process.env.BLOB_READ_WRITE_TOKEN) return response.status(400).json({ error: "This withdrawal request is invalid." });
+    try {
+      const withdrawn = await withdrawReview({ token });
+      if (withdrawn.error) return response.status(withdrawn.error === "expired" ? 410 : 400).json({ error: "This withdrawal link is invalid, expired or already used." });
+      return response.status(200).json({ message: "The review was removed." });
+    } catch (error) {
+      console.error("Review withdrawal failed", { code: error?.name || "UNKNOWN" });
+      return response.status(503).json({ error: "The review could not be removed. Please try again later." });
     }
   }
 
@@ -102,5 +123,8 @@ export default async function handler(request, response) {
     return response.status(502).json({ error: "We could not submit your review. Please try again later." });
   }
 
-  return response.status(201).json({ message: "Thank you. Your review was received and will remain private until it is approved." });
+  return response.status(201).json({
+    message: "Thank you. Your review was received and will remain private until it is approved.",
+    withdrawalToken: pending.withdrawalToken,
+  });
 }
