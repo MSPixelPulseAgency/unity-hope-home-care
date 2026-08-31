@@ -4,6 +4,7 @@ import { InquiryForm } from "../components/ui/InquiryForm";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 const qualities = [
   ["Heart", "Compassionate", "You approach clients and families with warmth, patience and empathy."],
@@ -13,9 +14,10 @@ const qualities = [
 ];
 
 export default function Careers() {
+  const { content } = useManagedContent();
   return (
     <>
-      <Seo {...pageSeo.careers} />
+      <Seo {...(content.seo.careers || pageSeo.careers)} />
       <PageHero eyebrow="Caregiver Careers" title="Join a Team Built Around Compassion." description="Bring patience, reliability and respect to work that helps people feel supported at home." image="/images/caregiver-team.webp" imageAlt="Caregivers and senior adults together in a home setting" breadcrumbs={[{ label: "Careers" }]} />
       <section className="section careers-values">
         <div className="container">
@@ -31,7 +33,7 @@ export default function Careers() {
       </section>
       <section className="section career-form-section">
         <div className="container form-page-grid">
-          <aside className="form-contact-panel reveal"><p className="eyebrow eyebrow-light">Apply to Join Us</p><h2>Tell us about your experience and availability.</h2><p>Complete the form and Unity & Hope will review your interest. Please do not include sensitive identification or medical information.</p><div className="career-note"><Icon name="LockKeyhole" size={21} />Optional resumes are securely validated, emailed with the application and never stored on the website.</div></aside>
+          <aside className="form-contact-panel reveal"><p className="eyebrow eyebrow-light">Apply to Join Us</p><h2>Tell us about your experience and availability.</h2><p>Complete the form and Unity & Hope will review your interest. Please do not include sensitive identification or medical information.</p><div className="career-note"><Icon name="LockKeyhole" size={21} />Optional resumes are securely validated, sent to the owner and retained privately for application follow-up.</div></aside>
           <div className="form-card reveal reveal-delay"><div className="form-card-heading"><p className="eyebrow">Caregiver Application</p><h2>Start your application</h2></div><InquiryForm type="career" /></div>
         </div>
       </section>

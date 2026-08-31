@@ -1,17 +1,18 @@
-import { serviceAreaContent, serviceAreas } from "../data/serviceAreas";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { ServiceArea } from "../components/sections/ServiceArea";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
-import { siteConfig } from "../config/siteConfig";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function ServiceAreas() {
+  const { content, visibleAreas: serviceAreas } = useManagedContent();
+  const { serviceAreaContent, site: siteConfig } = content;
   return (
     <>
-      <Seo {...pageSeo.serviceAreas} />
+      <Seo {...(content.seo.serviceAreas || pageSeo.serviceAreas)} />
       <PageHero eyebrow="Our Service Area" title="Close to Home. Focused on Community." description={`${serviceAreaContent.primaryArea} is the verified center of our service region. Call us to confirm availability for your exact address.`} image="/images/caregiver-welcome.webp" imageAlt="A caregiver warmly greeting an older woman at home" breadcrumbs={[{ label: "Service Areas" }]} />
       <ServiceArea compact />
       <section className="section county-list-section">

@@ -1,10 +1,12 @@
 import { managedCare } from "../../data/managedCare";
-import { siteConfig } from "../../config/siteConfig";
+import { useManagedContent } from "../../context/ContentContext";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 import { SectionTitle } from "../ui/SectionTitle";
 
 export function AcceptedPlans() {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   return (
     <section className="section plans-section">
       <div className="container plans-hours-grid">
@@ -35,4 +37,3 @@ export function AcceptedPlans() {
     </section>
   );
 }
-

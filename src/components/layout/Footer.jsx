@@ -1,21 +1,22 @@
 import { Link } from "react-router-dom";
-import { siteConfig } from "../../config/siteConfig";
-import { services } from "../../data/services";
+import { useManagedContent } from "../../context/ContentContext";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 
 export function Footer() {
+  const { content, visibleServices } = useManagedContent();
+  const siteConfig = content.site;
   return (
     <>
       <section className="footer-cta">
         <div className="container footer-cta-inner">
           <div>
-            <p className="eyebrow eyebrow-light">Now accepting new clients</p>
-            <h2>Ready to talk about care at home?</h2>
-            <p>Start with a free in-home consultation and a conversation about your family's needs.</p>
+            <p className="eyebrow eyebrow-light">{siteConfig.footerCtaEyebrow}</p>
+            <h2>{siteConfig.footerCtaTitle}</h2>
+            <p>{siteConfig.footerCtaDescription}</p>
           </div>
           <div className="footer-cta-actions">
-            <Button to="/request-care" variant="gold">Request Care</Button>
+            <Button to="/request-care" variant="gold">{siteConfig.primaryCtaLabel}</Button>
             <Button href={siteConfig.phoneHref} variant="light" icon="Phone">{siteConfig.phone}</Button>
           </div>
         </div>
@@ -33,7 +34,7 @@ export function Footer() {
           <section className="footer-qr" aria-labelledby="footer-qr-heading">
             <h2 id="footer-qr-heading">Scan to Visit</h2>
             <div className="qr-frame">
-              <img src="/brand/unity-hope-qr.png" alt="QR code for uhomehealth.com" width="150" height="150" />
+              <img src="/brand/unity-hope-qr.png" alt="QR code for uhhomehealth.com" width="150" height="150" />
             </div>
             <p>Point your camera here to open our website.</p>
           </section>
@@ -56,8 +57,13 @@ export function Footer() {
             <div className="footer-logo-card">
               <img src="/brand/unity-hope-logo.webp" alt="Unity and Hope Home Care LLC - Compassion. Dignity. Care." width="360" height="314" />
             </div>
-            <p>Compassionate, personalized non-medical care in the comfort of home.</p>
-            <Link to={`/services/${services[0].slug}`}>Explore personal care <Icon name="ArrowRight" size={16} /></Link>
+            <p>{siteConfig.footerDescription}</p>
+            {Object.values(siteConfig.socials || {}).some(Boolean) && <div className="footer-social-links" aria-label="Unity and Hope social profiles">
+              {siteConfig.socials.facebook && <a href={siteConfig.socials.facebook} target="_blank" rel="noreferrer" aria-label="Facebook"><Icon name="Facebook" size={20} /></a>}
+              {siteConfig.socials.instagram && <a href={siteConfig.socials.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><Icon name="Instagram" size={20} /></a>}
+              {siteConfig.socials.linkedin && <a href={siteConfig.socials.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn"><Icon name="Linkedin" size={20} /></a>}
+            </div>}
+            {visibleServices[0] && <Link to={`/services/${visibleServices[0].slug}`}>Explore {visibleServices[0].shortTitle.toLowerCase()} <Icon name="ArrowRight" size={16} /></Link>}
           </section>
         </div>
         <div className="footer-bottom">
@@ -69,7 +75,7 @@ export function Footer() {
       </footer>
       <div className="mobile-action-bar" aria-label="Quick contact actions">
         <a href={siteConfig.phoneHref}><Icon name="Phone" size={19} /> Call Unity &amp; Hope</a>
-        <Link to="/request-care"><Icon name="HeartHandshake" size={19} /> Get Started</Link>
+        <Link to="/request-care"><Icon name="HeartHandshake" size={19} /> {siteConfig.primaryCtaLabel}</Link>
       </div>
     </>
   );

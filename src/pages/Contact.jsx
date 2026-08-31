@@ -1,15 +1,17 @@
-import { siteConfig } from "../config/siteConfig";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { InquiryForm } from "../components/ui/InquiryForm";
 import { Icon } from "../components/ui/Icon";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function Contact() {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(siteConfig.fullAddress)}`;
   return (
     <>
-      <Seo {...pageSeo.contact} />
+      <Seo {...(content.seo.contact || pageSeo.contact)} />
       <PageHero eyebrow="Contact Unity & Hope" title="We’re Ready to Listen." description="Call, email or send a message to start a conversation about non-medical care at home." image="/images/coffee-conversation.webp" imageAlt="A caregiver speaking with an older adult at a kitchen table" breadcrumbs={[{ label: "Contact" }]} />
       <section className="section contact-section">
         <div className="container contact-grid">

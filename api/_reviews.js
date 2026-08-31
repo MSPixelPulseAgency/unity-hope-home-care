@@ -180,6 +180,7 @@ export const createPendingReview = async ({ data, now = Date.now(), secret = rev
     review_text: data.reviewText,
     consent: true,
     status: "pending",
+    published: false,
     created_at: createdAt,
     approved_at: null,
     rejected_at: null,
@@ -228,10 +229,81 @@ export const listApprovedReviews = async () => {
   const records = await Promise.all(blobs.slice(0, 1000).map((blob) => readJson(blob.pathname).catch(() => null)));
   return records
     .map((record) => record?.value)
-    .filter((review) => review?.status === "approved" && review.consent === true)
+    .filter((review) => review?.status === "approved" && review.consent === true && review.published !== false)
     .sort((a, b) => String(b.approved_at).localeCompare(String(a.approved_at)))
     .slice(0, 24)
     .map(publicReview);
+};
+
+const adminReview = (review) => ({
+  id: review.id,
+  name: review.name,
+  relationship: review.relationship,
+  rating: review.rating,
+  reviewText: review.review_text,
+  consent: review.consent === true,
+  status: review.status === "approved" && review.published === false ? "hidden" : review.status,
+  published: review.status === "approved" && review.published !== false,
+  createdAt: review.created_at,
+  approvedAt: review.approved_at,
+  rejectedAt: review.rejected_at,
+  hiddenAt: review.hidden_at || null,
+});
+
+export const listAllReviews = async () => {
+  const blobs = [];
+  let cursor;
+  do {
+    const page = await list({ prefix: REVIEW_PREFIX, limit: 500, cursor });
+    blobs.push(...page.blobs);
+    cursor = page.hasMore ? page.cursor : undefined;
+  } while (cursor && blobs.length < 1000);
+  const records = await Promise.all(blobs.slice(0, 1000).map((blob) => readJson(blob.pathname).catch(() => null)));
+  return records
+    .map((record) => record?.value)
+    .filter((review) => review?.id)
+    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+    .map(adminReview);
+};
+
+export const adminModerateReview = async ({ id, action }) => {
+  if (!REVIEW_ID_PATTERN.test(String(id)) || !new Set(["approve", "decline", "hide", "publish"]).has(action)) return null;
+  const current = await readReview(id);
+  if (!current) return null;
+  const timestamp = new Date().toISOString();
+  const approved = action === "approve" || action === "publish";
+  const declined = action === "decline";
+  const updated = {
+    ...current.value,
+    status: approved ? "approved" : (declined ? "rejected" : current.value.status),
+    published: approved ? true : false,
+    approved_at: approved ? (current.value.approved_at || timestamp) : current.value.approved_at,
+    rejected_at: declined ? timestamp : current.value.rejected_at,
+    hidden_at: action === "hide" ? timestamp : null,
+    approval_token_hash: approved || declined ? null : current.value.approval_token_hash,
+    rejection_token_hash: approved || declined ? null : current.value.rejection_token_hash,
+  };
+  try {
+    await put(reviewPath(id), JSON.stringify(updated), {
+      access: "private",
+      contentType: "application/json",
+      cacheControlMaxAge: 60,
+      allowOverwrite: true,
+      ifMatch: current.etag,
+    });
+    return adminReview(updated);
+  } catch (error) {
+    if (error instanceof BlobPreconditionFailedError) return null;
+    throw error;
+  }
+};
+
+export const adminDeleteReview = async (id) => {
+  if (!REVIEW_ID_PATTERN.test(String(id))) return false;
+  const current = await readReview(id);
+  if (!current) return false;
+  await del(reviewPath(id), { ifMatch: current.etag });
+  return true;
 };
 
 const expectedTokenHash = (review, action) => (action === "approve"
@@ -258,6 +330,7 @@ export const moderateReview = async ({ token, action, now = Date.now(), secret =
   const updated = {
     ...inspected.value.review,
     status: action === "approve" ? "approved" : "rejected",
+    published: action === "approve",
     approved_at: action === "approve" ? timestamp : null,
     rejected_at: action === "decline" ? timestamp : null,
     approval_token_hash: null,

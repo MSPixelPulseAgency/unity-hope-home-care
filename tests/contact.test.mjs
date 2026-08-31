@@ -195,7 +195,7 @@ test("uses the requested care-notification actions", () => {
 
 test("rejects disallowed origins before processing a form", async () => {
   const previousOrigin = process.env.ALLOWED_ORIGIN;
-  process.env.ALLOWED_ORIGIN = "https://uhhomehealth.com,https://www.uhhomehealth.com,https://unityhope.vercel.app";
+  process.env.ALLOWED_ORIGIN = "https://uhhomehealth.com,https://www.uhhomehealth.com,https://admin.uhhomehealth.com";
 
   const result = { status: 200, body: null };
   const response = {

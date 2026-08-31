@@ -4,11 +4,13 @@ import { ReviewForm } from "../components/ui/ReviewForm";
 import { Testimonials } from "../components/sections/Testimonials";
 import { Icon } from "../components/ui/Icon";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function Reviews() {
+  const { content } = useManagedContent();
   return (
     <>
-      <Seo {...pageSeo.reviews} />
+      <Seo {...(content.seo.reviews || pageSeo.reviews)} />
       <PageHero eyebrow="Share Your Experience" title="Your Feedback Matters." description="Tell us about your experience with Unity & Hope. Every review is checked before it is published to protect families' privacy." image="/images/caregiver-welcome.webp" imageAlt="A professional caregiver sharing a warm conversation with an older adult" breadcrumbs={[{ label: "Reviews" }]} />
       <section className="section form-page-section review-page-section">
         <div className="container form-page-grid">

@@ -1,10 +1,11 @@
-import { siteConfig } from "../../config/siteConfig";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
-import { homepageContent } from "../../data/content";
+import { useManagedContent } from "../../context/ContentContext";
 
 export function HomeHero() {
-  const { hero } = homepageContent;
+  const { content } = useManagedContent();
+  const { hero } = content.home;
+  const siteConfig = content.site;
 
   return (
     <section className="home-hero">

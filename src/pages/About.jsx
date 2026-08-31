@@ -5,14 +5,16 @@ import { ValuesSection } from "../components/sections/ValuesSection";
 import { WhyAndProcess } from "../components/sections/WhyAndProcess";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
-import { aboutContent } from "../data/content";
 import { pageSeo } from "../data/seo";
 import { TeamSection } from "../components/sections/TeamSection";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function About() {
+  const { content } = useManagedContent();
+  const aboutContent = content.about;
   return (
     <>
-      <Seo {...pageSeo.about} />
+      <Seo {...(content.seo.about || pageSeo.about)} />
       <PageHero eyebrow="About Unity & Hope" title="Compassion. Dignity. Care." description="Dependable, personalized non-medical care in the comfort of home, centered on each client and family." image="/images/brochure-caregiver.webp" imageAlt="A caregiver in purple speaking with an older woman at home" breadcrumbs={[{ label: "About Us" }]} />
 
       <section className="section split-story">
@@ -29,6 +31,10 @@ export default function About() {
           </div>
         </div>
       </section>
+      {(aboutContent.vision || aboutContent.founderStory) && <section className="section about-extended-story"><div className="container about-extended-grid">
+        {aboutContent.vision && <article><p className="eyebrow">Our Vision</p><h2>Care that respects every person</h2>{aboutContent.vision.split("\n").filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</article>}
+        {aboutContent.founderStory && <article><p className="eyebrow">Our Story</p><h2>Why Unity &amp; Hope began</h2>{aboutContent.founderStory.split("\n").filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</article>}
+      </div></section>}
       <TeamSection />
       <ValuesSection />
       <WhyAndProcess />

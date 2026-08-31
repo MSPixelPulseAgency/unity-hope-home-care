@@ -1,5 +1,6 @@
-import nodemailer from "nodemailer";
 import { isAllowedRequestOrigin } from "./_request-security.js";
+import { createMailTransporter, getEmailConfig, safeMailError } from "./_email.js";
+import { storeSubmission } from "./_submissions.js";
 
 const rateLimit = new Map();
 const submissions = new Map();
@@ -337,21 +338,11 @@ export const createConfirmationEmail = (data) => {
   };
 };
 
-const createTransporter = ({ gmailUser, gmailAppPassword }) => nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: gmailUser, pass: gmailAppPassword },
-});
-
 const pruneMaps = () => {
   const cutoff = Date.now() - 86400000;
   for (const [key, value] of submissions) if (value.createdAt < cutoff) submissions.delete(key);
   for (const [key, value] of rateLimit) if (value < cutoff) rateLimit.delete(key);
 };
-
-const safeMailError = (error) => ({
-  code: typeof error?.code === "string" ? error.code : "UNKNOWN",
-  responseCode: Number.isFinite(error?.responseCode) ? error.responseCode : undefined,
-});
 
 export default async function handler(request, response) {
   if (request.method !== "POST") return response.status(405).json({ error: "Method not allowed." });
@@ -373,12 +364,13 @@ export default async function handler(request, response) {
   if (validation.error) return response.status(400).json({ error: validation.error });
   const { data, idempotencyKey } = validation.value;
 
-  const gmailUser = text(process.env.GMAIL_USER).toLowerCase();
-  const gmailAppPassword = text(process.env.GMAIL_APP_PASSWORD).replaceAll(" ", "");
-  const contactTo = text(process.env.CONTACT_TO_EMAIL).toLowerCase();
-  if (!EMAIL_PATTERN.test(gmailUser) || !gmailAppPassword || !EMAIL_PATTERN.test(contactTo)) {
+  let emailConfig;
+  try {
+    emailConfig = getEmailConfig();
+  } catch {
     return response.status(503).json({ error: "Online delivery is being configured. Please call 937-221-9764 or email uhhomehealthllc@gmail.com." });
   }
+  const contactTo = emailConfig.contactEmail;
 
   pruneMaps();
   const priorSubmission = submissions.get(idempotencyKey);
@@ -396,7 +388,7 @@ export default async function handler(request, response) {
   rateLimit.set(clientKey, Date.now());
   submissions.set(idempotencyKey, { state: "sending", createdAt: Date.now() });
 
-  const transporter = createTransporter({ gmailUser, gmailAppPassword });
+  const transporter = createMailTransporter(emailConfig);
   const notification = createNotificationEmail(data);
   const attachments = data.resume ? [{
     filename: data.resume.filename,
@@ -406,7 +398,7 @@ export default async function handler(request, response) {
 
   try {
     await transporter.sendMail({
-      from: { name: "Unity & Hope Website", address: gmailUser },
+      from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
       to: contactTo,
       replyTo: { name: data.name, address: data.email },
       subject: notification.subject,
@@ -416,6 +408,9 @@ export default async function handler(request, response) {
       messageId: `<unity-hope-notification-${idempotencyKey}@uhhomehealth.com>`,
     });
     submissions.set(idempotencyKey, { state: "complete", createdAt: Date.now() });
+    await storeSubmission({ data, idempotencyKey }).catch((error) => {
+      console.error("Submission could not be added to the admin portal", { code: error?.name || "UNKNOWN" });
+    });
   } catch (error) {
     submissions.delete(idempotencyKey);
     console.error("Business notification email failed", safeMailError(error));
@@ -425,7 +420,7 @@ export default async function handler(request, response) {
   const confirmation = createConfirmationEmail(data);
   try {
     await transporter.sendMail({
-      from: { name: "Unity & Hope Home Care LLC", address: gmailUser },
+      from: { name: "Unity & Hope Home Care LLC", address: emailConfig.gmailUser },
       to: data.email,
       replyTo: contactTo,
       subject: confirmation.subject,

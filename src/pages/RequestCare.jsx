@@ -1,14 +1,16 @@
-import { siteConfig } from "../config/siteConfig";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { InquiryForm } from "../components/ui/InquiryForm";
 import { Icon } from "../components/ui/Icon";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function RequestCare() {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   return (
     <>
-      <Seo {...pageSeo.requestCare} />
+      <Seo {...(content.seo.requestCare || pageSeo.requestCare)} />
       <PageHero eyebrow="Free In-Home Consultation" title="Get Started With Care at Home." description="Share what support would help. A member of the Unity & Hope team will follow up to learn more." image="/images/holding-hands.webp" imageAlt="A caregiver holding an older adult's hands in reassurance" breadcrumbs={[{ label: "Get Started" }]} />
       <section className="section form-page-section">
         <div className="container form-page-grid">

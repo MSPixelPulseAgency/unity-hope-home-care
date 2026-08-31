@@ -1,43 +1,38 @@
-# Unity & Hope Content Management Handoff
+# Unity & Hope Content Management Architecture
 
-The production site keeps routine content in a small set of readable configuration files. This gives the owner a safer editing workflow now without adding an insecure public dashboard or storing care inquiries in a new database.
+Production owner edits are made at `https://admin.uhhomehealth.com`. The admin portal and public website are delivered from the same React/Vite repository and existing Vercel project.
 
-## What can be updated
+## Content model
 
-| Content | File | Notes |
-| --- | --- | --- |
-| Phone, email, address, hours, external profiles | `src/config/siteConfig.js` | Keep the production URL unchanged unless the domain changes. |
-| Homepage message, CTAs, process, FAQ | `src/data/content.js` | Keep claims non-medical and factual. |
-| Services | `src/data/services.js` | Each entry automatically powers cards, navigation and its detail page. |
-| Service region | `src/data/serviceAreas.js` | Publish named cities only after the client confirms they are served. |
-| Reviews | Private Vercel Blob records | Visitors submit at `/reviews`; only reviews approved through the client email workflow appear publicly. Never create or publish invented reviews. |
-| Team | `src/data/team.js` | The section is hidden until approved profiles and photos exist. |
-| Resources | `src/data/resources.js` | Optional `author`, `publishedDate`, `source`, `seoTitle` and `seoDescription` fields display only when supplied. |
-| Core SEO | `src/data/seo.js` | Keep every title and description unique and natural. |
+- `src/data/` and `src/config/siteConfig.js` contain reviewed, version-controlled defaults.
+- `api/_cms.js` validates and sanitizes every owner-editable section.
+- Private `cms/site-content.json` in the connected Vercel Blob store contains current owner edits.
+- `api/content.js` returns only public-safe managed content.
+- `src/context/ContentContext.jsx` merges managed content with the checked-in defaults so the website remains usable if storage is temporarily unavailable.
+- `/sitemap.xml` is generated from visible services and published articles.
 
-## Safe publishing workflow
+The admin portal can manage business details, homepage and About mission copy, section visibility, services, service areas, team members, original resource articles, publication status and core route SEO. Uploaded JPEG, PNG and WebP images are stored privately and served through the restricted public media endpoint; no Blob credential reaches frontend code.
 
-1. Edit only approved facts and media.
-2. Run `npm run lint`, `npm test` and `npm run build`.
-3. Review the changed page on mobile, tablet and desktop.
-4. Commit and push the reviewed change to `main`.
-5. Wait for the existing Vercel project to deploy, then verify the live route.
+## Reviews and submissions
 
-## Inquiries and résumés
+Reviews start as `pending` private records. The configured owner email receives action-specific HMAC-signed approval and decline links. Links expire, require a confirmation step, use a conditional write and fail safely when invalid or reused. The admin portal can also approve, decline, hide, republish or delete a review. Only consented, approved and published reviews are public.
 
-Contact, care-request and career submissions are delivered to the configured business inbox. Résumés are validated and attached to the business email but are not permanently stored by this website.
+Contact, care-request and career records are stored privately after the business email succeeds. Career résumé uploads are signature-validated PDF/DOC/DOCX files, attached to the owner email and retained privately for authenticated download. The portal supports `new`, `read`, `in-progress` and `completed` status plus permanent deletion.
 
-## Review moderation
+## Authentication and deployment
 
-Review submissions are stored privately and begin with a `pending` status. The client inbox receives an approval email with separate Approve and Decline links. Each link requires a confirmation step, expires after 30 days and can be used only once. Approved reviews appear automatically; declined reviews remain private. No database or moderation credentials are exposed in frontend code.
+There is no registration route. Authentication uses the configured owner email and a scrypt password record, persistent server-side sessions, HttpOnly/Secure/SameSite cookies, CSRF validation, host/origin checks and persistent login/reset throttling. Password reset links are one-time and expire after 30 minutes.
 
-## Client data still needed
+Required production values are documented in `.env.example`. Never commit secret values or expose them through `VITE_` variables. Keep `https://uhhomehealth.com` as the only canonical public website URL; `www` redirects to the apex. Do not change Directnic apex, `www`, MX, TXT or unrelated records when maintaining the admin subdomain.
 
-- A verified Google review link, if the client wants an additional external review option
-- Approved team names, roles, biographies and photos
-- An approved vision statement and founder story
-- Any licensing, certification, insurance or affiliation details the client wants published
-- Confirmed city-level service areas
-- Google Analytics measurement ID, Search Console verification token and Google Business Profile URL
+Before release, run:
 
-Until those items are supplied, the production site hides corresponding empty sections and does not create team or credential claims. The review section also stays hidden until a real submitted review is approved.
+```bash
+npm install
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
+Then verify the public website, admin portal, forms, review moderation, storage, sitemap, robots, schema, HTTPS/redirects and Vercel production logs.

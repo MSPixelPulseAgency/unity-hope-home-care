@@ -1,4 +1,3 @@
-import { externalProfiles, siteConfig } from "../config/siteConfig";
 import { HomeHero } from "../components/sections/HomeHero";
 import { ServicesGrid } from "../components/sections/ServicesGrid";
 import { WhyAndProcess } from "../components/sections/WhyAndProcess";
@@ -10,15 +9,19 @@ import { CaregiverConfidence } from "../components/sections/CaregiverConfidence"
 import { CommunityCareGallery } from "../components/sections/CommunityCareGallery";
 import { EducationalMedia } from "../components/sections/EducationalMedia";
 import { EmergencyHelp } from "../components/sections/EmergencyHelp";
-import { services } from "../data/services";
 import { Seo } from "../components/ui/Seo";
 import { Accordion } from "../components/ui/Accordion";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { homepageContent } from "../data/content";
 import { pageSeo } from "../data/seo";
 import { Testimonials } from "../components/sections/Testimonials";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function Home() {
+  const { content, visibleServices: services } = useManagedContent();
+  const siteConfig = content.site;
+  const externalProfiles = [siteConfig.googleBusinessProfileUrl, ...Object.values(siteConfig.socials || {})].filter(Boolean);
+  const visibility = content.home.sectionVisibility;
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -27,7 +30,7 @@ export default function Home() {
         "@id": `${siteConfig.siteUrl}/#business`,
         name: siteConfig.companyName,
         url: siteConfig.siteUrl,
-        logo: `${siteConfig.siteUrl}/brand/unity-hope-logo.png`,
+        logo: `${siteConfig.siteUrl}/brand/unity-hope-logo.webp`,
         telephone: siteConfig.phoneHref.replace("tel:", ""),
         email: siteConfig.email,
         image: `${siteConfig.siteUrl}/og.jpg`,
@@ -77,27 +80,27 @@ export default function Home() {
   return (
     <>
       <Seo
-        {...pageSeo.home}
+        {...(content.seo.home || pageSeo.home)}
         schema={schema}
       />
       <HomeHero />
-      <ServicesGrid />
-      <WhyAndProcess />
-      <CaregiverConfidence />
-      <Testimonials />
-      <ServiceArea />
-      <CommunityCareGallery />
-      <HomeStory />
-      <ValuesSection />
-      <AcceptedPlans />
-      <EducationalMedia />
-      <section className="section faq-section">
+      {visibility.services && <ServicesGrid />}
+      {visibility.process && <WhyAndProcess />}
+      {visibility.caregiverConfidence && <CaregiverConfidence />}
+      {visibility.reviews && <Testimonials />}
+      {visibility.serviceArea && <ServiceArea />}
+      {visibility.communityGallery && <CommunityCareGallery />}
+      {visibility.story && <HomeStory />}
+      {visibility.values && <ValuesSection />}
+      {visibility.acceptedPlans && <AcceptedPlans />}
+      {visibility.educationalMedia && <EducationalMedia />}
+      {visibility.faq && <section className="section faq-section">
         <div className="container faq-layout">
           <SectionTitle eyebrow="Frequently Asked Questions" title="Helpful answers before you call" description="Every care need is personal. These answers offer a simple starting point." align="left" />
           <Accordion items={homepageContent.faqs} />
         </div>
-      </section>
-      <EmergencyHelp />
+      </section>}
+      {visibility.emergencyHelp && <EmergencyHelp />}
     </>
   );
 }

@@ -1,18 +1,17 @@
-import { services } from "../../data/services";
+import { useManagedContent } from "../../context/ContentContext";
 import { SectionTitle } from "../ui/SectionTitle";
 import { ServiceCard } from "../ui/ServiceCard";
 import { Button } from "../ui/Button";
 
 export function ServicesGrid({ showIntro = true, limit }) {
-  const visibleServices = limit ? services.slice(0, limit) : services;
+  const { content, visibleServices: allServices } = useManagedContent();
+  const visibleServices = limit ? allServices.slice(0, limit) : allServices;
   return (
     <section className="section services-section">
       <div className="container">
         {showIntro && (
           <SectionTitle
-            eyebrow="Our Services"
-            title="Care that fits everyday life"
-            description="Personalized non-medical support designed around each client's routines, comfort and independence."
+            {...content.home.servicesHeading}
           />
         )}
         <div className="services-grid">
@@ -23,4 +22,3 @@ export function ServicesGrid({ showIntro = true, limit }) {
     </section>
   );
 }
-

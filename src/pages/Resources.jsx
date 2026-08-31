@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
-import { resources } from "../data/resources";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function Resources() {
+  const { content, publishedResources: resources } = useManagedContent();
   return (
     <>
-      <Seo {...pageSeo.resources} />
+      <Seo {...(content.seo.resources || pageSeo.resources)} />
       <PageHero eyebrow="Helpful Resources" title="Guidance for Care at Home." description="Practical, non-medical information to help families ask thoughtful questions and feel more prepared." image="/images/family-cooking.webp" imageAlt="A family preparing food together in a bright home" breadcrumbs={[{ label: "Resources" }]} />
-      <section className="section resource-library">
+      <section className="section resource-library" id="care-guides">
         <div className="container">
           <SectionTitle eyebrow="Resource Library" title="Start with the questions that matter to your family" description="These articles are educational only and do not provide diagnosis, treatment or personalized medical advice." />
           <div className="resource-grid">

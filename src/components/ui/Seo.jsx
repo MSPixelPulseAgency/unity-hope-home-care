@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { siteConfig } from "../../config/siteConfig";
+import { useManagedContent } from "../../context/ContentContext";
 
 const setMeta = (attribute, key, content) => {
   let element = document.head.querySelector(`meta[${attribute}="${key}"]`);
@@ -23,7 +23,7 @@ const breadcrumbLabelMap = {
   reviews: "Reviews",
 };
 
-const createSchema = ({ schema, path, fullTitle, description, canonical }) => {
+const createSchema = ({ schema, path, fullTitle, description, canonical, siteConfig }) => {
   const suppliedItems = schema?.["@graph"] || (schema ? [schema] : []);
   const graph = suppliedItems.map((item) => {
     const cleanItem = { ...item };
@@ -74,6 +74,8 @@ const createSchema = ({ schema, path, fullTitle, description, canonical }) => {
 };
 
 export function Seo({ title, description, path = "/", image = "/og.jpg", schema, keywords = [], noIndex = false }) {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   useEffect(() => {
     const fullTitle = title.includes("Unity & Hope") ? title : `${title} | Unity & Hope Home Care LLC`;
     const canonical = new URL(path, siteConfig.siteUrl).toString();
@@ -119,11 +121,11 @@ export function Seo({ title, description, path = "/", image = "/og.jpg", schema,
     const script = document.createElement("script");
     script.id = scriptId;
     script.type = "application/ld+json";
-    script.textContent = JSON.stringify(createSchema({ schema, path, fullTitle, description, canonical }));
+    script.textContent = JSON.stringify(createSchema({ schema, path, fullTitle, description, canonical, siteConfig }));
     document.head.appendChild(script);
 
     window.scrollTo({ top: 0, behavior: "instant" });
-  }, [description, image, keywords, noIndex, path, schema, title]);
+  }, [description, image, keywords, noIndex, path, schema, siteConfig, title]);
 
   return null;
 }

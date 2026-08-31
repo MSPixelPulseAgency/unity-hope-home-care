@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { services } from "../../data/services";
+import { useManagedContent } from "../../context/ContentContext";
 import { Icon } from "./Icon";
 
 const MAX_RESUME_BYTES = 3 * 1024 * 1024;
@@ -53,6 +53,7 @@ const encodeFile = async (file) => {
 };
 
 export function InquiryForm({ type = "contact", compact = false }) {
+  const { visibleServices } = useManagedContent();
   const [form, setForm] = useState(createInitialState);
   const [status, setStatus] = useState({ state: "idle", message: "" });
   const [resumeFile, setResumeFile] = useState(null);
@@ -190,7 +191,7 @@ export function InquiryForm({ type = "contact", compact = false }) {
             <fieldset className="field field-full checkbox-fieldset">
               <legend>Services interested in</legend>
               <div className="checkbox-grid">
-                {[...services.map((service) => service.title), "Not Sure"].map((title) => (
+                {[...visibleServices.map((service) => service.title), "Not Sure"].map((title) => (
                   <label className="check-option" key={title}>
                     <input
                       name="services"
@@ -295,7 +296,7 @@ export function InquiryForm({ type = "contact", compact = false }) {
                 aria-invalid={resumeError ? "true" : undefined}
                 onChange={chooseResume}
               />
-              <small className="field-help" id={`${type}-resume-help`}>PDF, DOC or DOCX. Maximum 3 MB. The file is emailed with your application and is not stored on this website.</small>
+              <small className="field-help" id={`${type}-resume-help`}>PDF, DOC or DOCX. Maximum 3 MB. The file is sent to the owner and retained securely for application follow-up.</small>
               {resumeError && <small className="form-file-error" id={`${type}-resume-error`} role="alert">{resumeError}</small>}
             </label>
           </>

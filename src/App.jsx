@@ -13,6 +13,7 @@ import ResourceArticle from "./pages/ResourceArticle";
 import Privacy from "./pages/Privacy";
 import Reviews from "./pages/Reviews";
 import NotFound from "./pages/NotFound";
+import AdminApp from "./admin/AdminApp";
 
 const router = createBrowserRouter([
   {
@@ -36,5 +37,10 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  const hostname = window.location.hostname.toLowerCase();
+  const isLocalAdmin = ["localhost", "127.0.0.1"].includes(hostname) && window.location.pathname.startsWith("/admin");
+  if (hostname === "admin.uhhomehealth.com" || isLocalAdmin) {
+    return <AdminApp />;
+  }
   return <RouterProvider router={router} />;
 }

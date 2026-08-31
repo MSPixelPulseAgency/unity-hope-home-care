@@ -1,14 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { siteConfig, mainNavigation } from "../../config/siteConfig";
-import { services } from "../../data/services";
+import { useManagedContent } from "../../context/ContentContext";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 
+const resourceLinks = [
+  { to: "/resources", label: "Resources & Blog" },
+  { to: "/resources#care-guides", label: "Home Care Guides" },
+];
+
+const moreLinks = [
+  { to: "/about", label: "About Us" },
+  { to: "/service-areas", label: "Service Area" },
+  { to: "/careers", label: "Careers" },
+  { to: "/contact", label: "Contact Us" },
+];
+
+function DesktopDropdown({ label, active, open, onToggle, onOpen, onClose, id, children }) {
+  return (
+    <div className="nav-dropdown" onMouseLeave={onClose}>
+      <button
+        type="button"
+        className={active ? "active" : ""}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={onToggle}
+        onMouseEnter={onOpen}
+      >
+        {label} <Icon name="ChevronDown" size={17} />
+      </button>
+      <div className={`services-dropdown ${open ? "is-open" : ""}`} id={id}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function Header() {
+  const { content, visibleServices } = useManagedContent();
+  const { site } = content;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [desktopMenu, setDesktopMenu] = useState("");
   const menuToggleRef = useRef(null);
   const menuCloseRef = useRef(null);
   const menuRef = useRef(null);
@@ -54,12 +87,12 @@ export function Header() {
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
-        setServicesOpen(false);
+        setDesktopMenu("");
         return;
       }
 
       if (event.key === "Tab" && menuOpen) {
-        const focusable = menuRef.current?.querySelectorAll("a[href], button:not([disabled])");
+        const focusable = menuRef.current?.querySelectorAll("a[href], button:not([disabled]), summary");
         if (!focusable?.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -86,22 +119,21 @@ export function Header() {
     document.body.style.removeProperty("--menu-scroll-y");
   }, []);
 
+  const toggleDesktopMenu = (name) => setDesktopMenu((current) => (current === name ? "" : name));
+
   return (
     <>
       <div className="utility-bar">
         <div className="container utility-inner">
-          <p><Icon name="Heart" size={16} /> {siteConfig.headline}</p>
-          <div className="social-placeholder" aria-label="Social profiles are coming soon">
-            <span>Follow Us:</span>
-            <span className="social-disabled" title="Facebook profile coming soon"><Icon name="Facebook" size={15} /></span>
-            <span className="social-disabled" title="Instagram profile coming soon"><Icon name="Instagram" size={15} /></span>
-            <span className="social-disabled" title="LinkedIn profile coming soon"><Icon name="Linkedin" size={15} /></span>
-          </div>
+          <p><Icon name="Heart" size={17} /> {site.headline}</p>
+          <a href={site.phoneHref} aria-label={`Call Unity and Hope at ${site.phone}`}>
+            <Icon name="Phone" size={16} /> Call {site.phone}
+          </a>
         </div>
       </div>
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="container header-inner">
-          <Link className="brand-lockup" to="/">
+          <Link className="brand-lockup" to="/" aria-label="Unity and Hope Home Care home">
             <img src="/brand/unity-hope-mark.webp" alt="" width="68" height="68" fetchPriority="high" />
             <span className="brand-words">
               <span><strong>Unity</strong> <em>and</em> <b>Hope</b></span>
@@ -110,37 +142,50 @@ export function Header() {
           </Link>
 
           <nav className="desktop-nav" aria-label="Main navigation">
-            {mainNavigation.map((item) => item.to === "/services" ? (
-              <div className="nav-dropdown" key={item.to} onMouseLeave={() => setServicesOpen(false)}>
-                <button
-                  type="button"
-                  className={location.pathname.startsWith("/services") ? "active" : ""}
-                  aria-expanded={servicesOpen}
-                  aria-controls="services-dropdown"
-                  onClick={() => setServicesOpen((open) => !open)}
-                  onMouseEnter={() => setServicesOpen(true)}
-                >
-                  Our Services <Icon name="ChevronDown" size={15} />
-                </button>
-                <div className={`services-dropdown ${servicesOpen ? "is-open" : ""}`} id="services-dropdown">
-                  <NavLink to="/services" onClick={() => setServicesOpen(false)}>All Services</NavLink>
-                  {services.map((service) => (
-                    <NavLink key={service.slug} to={`/services/${service.slug}`} onClick={() => setServicesOpen(false)}>{service.shortTitle}</NavLink>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <NavLink key={item.to} to={item.to}>{item.label}</NavLink>
-            ))}
+            <NavLink end to="/">Home</NavLink>
+            <DesktopDropdown
+              label="Services"
+              active={location.pathname.startsWith("/services")}
+              open={desktopMenu === "services"}
+              id="services-dropdown"
+              onToggle={() => toggleDesktopMenu("services")}
+              onOpen={() => setDesktopMenu("services")}
+              onClose={() => setDesktopMenu("")}
+            >
+              <NavLink to="/services">All Services</NavLink>
+              {visibleServices.map((service) => (
+                <NavLink key={service.slug} to={`/services/${service.slug}`}>{service.shortTitle}</NavLink>
+              ))}
+            </DesktopDropdown>
+            <DesktopDropdown
+              label="Resources"
+              active={location.pathname.startsWith("/resources")}
+              open={desktopMenu === "resources"}
+              id="resources-dropdown"
+              onToggle={() => toggleDesktopMenu("resources")}
+              onOpen={() => setDesktopMenu("resources")}
+              onClose={() => setDesktopMenu("")}
+            >
+              {resourceLinks.map((item) => <NavLink key={item.to} to={item.to}>{item.label}</NavLink>)}
+            </DesktopDropdown>
+            <NavLink to="/reviews">Reviews</NavLink>
+            <DesktopDropdown
+              label="More"
+              active={moreLinks.some((item) => location.pathname.startsWith(item.to))}
+              open={desktopMenu === "more"}
+              id="more-dropdown"
+              onToggle={() => toggleDesktopMenu("more")}
+              onOpen={() => setDesktopMenu("more")}
+              onClose={() => setDesktopMenu("")}
+            >
+              {moreLinks.map((item) => <NavLink key={item.to} to={item.to}>{item.label}</NavLink>)}
+            </DesktopDropdown>
           </nav>
 
-          <a className="header-phone" href={siteConfig.phoneHref}>
-            <span className="header-phone-icon"><Icon name="Phone" size={23} /></span>
-            <span><small>Call Us Today!</small><strong>{siteConfig.phone}</strong></span>
-          </a>
+          <Button className="header-cta" to="/request-care" icon="Heart">{site.primaryCtaLabel}</Button>
 
           <div className="mobile-header-actions">
-            <a className="mobile-phone" href={siteConfig.phoneHref} aria-label={`Call ${siteConfig.phone}`}>
+            <a className="mobile-phone" href={site.phoneHref} aria-label={`Call ${site.phone}`}>
               <Icon name="Phone" size={21} />
             </a>
             <button
@@ -174,12 +219,29 @@ export function Header() {
           <button ref={menuCloseRef} type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><Icon name="X" size={24} /></button>
         </div>
         <nav aria-label="Mobile navigation">
-          {mainNavigation.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>{item.label}</NavLink>)}
-          <NavLink to="/request-care" onClick={() => setMenuOpen(false)}>Get Started</NavLink>
+          <NavLink end to="/" onClick={() => setMenuOpen(false)}>Home</NavLink>
+          <details>
+            <summary>Services <Icon name="ChevronDown" size={18} /></summary>
+            <div>
+              <NavLink to="/services" onClick={() => setMenuOpen(false)}>All Services</NavLink>
+              {visibleServices.map((service) => (
+                <NavLink key={service.slug} to={`/services/${service.slug}`} onClick={() => setMenuOpen(false)}>{service.shortTitle}</NavLink>
+              ))}
+            </div>
+          </details>
+          <details>
+            <summary>Resources <Icon name="ChevronDown" size={18} /></summary>
+            <div>{resourceLinks.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>{item.label}</NavLink>)}</div>
+          </details>
+          <NavLink to="/reviews" onClick={() => setMenuOpen(false)}>Reviews</NavLink>
+          <details>
+            <summary>More <Icon name="ChevronDown" size={18} /></summary>
+            <div>{moreLinks.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}>{item.label}</NavLink>)}</div>
+          </details>
         </nav>
         <div className="mobile-menu-cta">
-          <Button href={siteConfig.phoneHref} icon="Phone">Call {siteConfig.phone}</Button>
-          <Button to="/request-care" variant="gold">Get Started</Button>
+          <Button href={site.phoneHref} icon="Phone">Call {site.phone}</Button>
+          <Button to="/request-care" variant="gold">{site.primaryCtaLabel}</Button>
         </div>
       </aside>
     </>

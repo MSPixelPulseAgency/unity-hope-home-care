@@ -1,19 +1,20 @@
-import { services } from "../data/services";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { ServiceCard } from "../components/ui/ServiceCard";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function Services() {
+  const { content, visibleServices: services } = useManagedContent();
   return (
     <>
-      <Seo {...pageSeo.services} />
+      <Seo {...(content.seo.services || pageSeo.services)} />
       <PageHero eyebrow="Our Services" title="Personalized Care Designed Around You." description="Non-medical support shaped around routines, comfort, dignity and independence." image="/images/unity-hope-hero.webp" imageAlt="A home caregiver in purple sharing a warm moment with an older woman" breadcrumbs={[{ label: "Services" }]} />
       <section className="section services-overview">
         <div className="container">
-          <SectionTitle eyebrow="Seven Ways We Can Help" title="Practical support. Personal attention." description="Every care plan begins with a conversation about needs, preferences and daily life." />
+          <SectionTitle eyebrow="Ways We Can Help" title="Practical support. Personal attention." description="Every care plan begins with a conversation about needs, preferences and daily life." />
           <div className="service-feature-list">
             {services.map((service, index) => (
               <article className={`service-feature reveal ${index % 2 ? "service-feature-reverse" : ""}`} key={service.slug}>

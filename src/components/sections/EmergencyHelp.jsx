@@ -1,8 +1,10 @@
-import { siteConfig } from "../../config/siteConfig";
+import { useManagedContent } from "../../context/ContentContext";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 
 export function EmergencyHelp() {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   return (
     <section className="emergency-help" aria-labelledby="emergency-help-title">
       <div className="container emergency-help-inner">

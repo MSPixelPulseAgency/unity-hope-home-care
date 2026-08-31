@@ -1,16 +1,17 @@
 import { Link, useParams } from "react-router-dom";
-import { getServiceBySlug, services } from "../data/services";
 import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Button } from "../components/ui/Button";
 import { Icon } from "../components/ui/Icon";
 import NotFound from "./NotFound";
-import { siteConfig } from "../config/siteConfig";
+import { useManagedContent } from "../context/ContentContext";
 
 export default function ServiceDetail() {
   const { slug } = useParams();
-  const service = getServiceBySlug(slug);
+  const { content, visibleServices: services } = useManagedContent();
+  const siteConfig = content.site;
+  const service = services.find((item) => item.slug === slug);
   if (!service) return <NotFound />;
 
   const schema = {

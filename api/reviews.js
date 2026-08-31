@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import {
   createPendingReview,
   createReviewNotificationEmail,
@@ -14,18 +13,7 @@ import {
   normalizeText,
   requestClientKey,
 } from "./_request-security.js";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const createTransporter = ({ gmailUser, gmailAppPassword }) => nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: gmailUser, pass: gmailAppPassword },
-});
-
-const safeMailError = (error) => ({
-  code: typeof error?.code === "string" ? error.code : "UNKNOWN",
-  responseCode: Number.isFinite(error?.responseCode) ? error.responseCode : undefined,
-});
+import { createMailTransporter, getEmailConfig, safeMailError } from "./_email.js";
 
 const siteUrl = () => normalizeText(process.env.SITE_URL || "https://uhhomehealth.com").replace(/\/$/, "");
 
@@ -78,17 +66,16 @@ export default async function handler(request, response) {
   const validation = validateReviewSubmission(body);
   if (validation.error) return response.status(400).json({ error: validation.error });
 
-  const gmailUser = normalizeText(process.env.GMAIL_USER).toLowerCase();
-  const gmailAppPassword = normalizeText(process.env.GMAIL_APP_PASSWORD).replaceAll(" ", "");
-  const contactTo = normalizeText(process.env.CONTACT_TO_EMAIL).toLowerCase();
+  let emailConfig;
   let secret;
   try {
+    emailConfig = getEmailConfig();
     secret = reviewSecret();
   } catch {
     return response.status(503).json({ error: "Review delivery is being configured. Please try again later." });
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN || !EMAIL_PATTERN.test(gmailUser) || !gmailAppPassword || !EMAIL_PATTERN.test(contactTo)) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return response.status(503).json({ error: "Review delivery is being configured. Please try again later." });
   }
 
@@ -105,13 +92,13 @@ export default async function handler(request, response) {
   const approveUrl = `${baseUrl}/api/review-moderate?action=approve&token=${encodeURIComponent(pending.approveToken)}`;
   const declineUrl = `${baseUrl}/api/review-moderate?action=decline&token=${encodeURIComponent(pending.declineToken)}`;
   const email = createReviewNotificationEmail({ review: pending.review, approveUrl, declineUrl });
-  const transporter = createTransporter({ gmailUser, gmailAppPassword });
+  const transporter = createMailTransporter(emailConfig);
 
   try {
     await transporter.sendMail({
-      from: { name: "Unity & Hope Website", address: gmailUser },
-      to: contactTo,
-      replyTo: contactTo,
+      from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
+      to: emailConfig.adminEmail,
+      replyTo: emailConfig.adminEmail,
       subject: email.subject,
       html: email.html,
       text: email.text,

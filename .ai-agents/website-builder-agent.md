@@ -6,11 +6,11 @@ Maintain **Unity & Hope Home Care LLC** as a standalone React/Vite website. The 
 
 Core contact details live only in `src/config/siteConfig.js`: `937-221-9764`, `uhhomehealthllc@gmail.com`, `101 Woodman Dr. Suite 212B, Riverside, Ohio 45431`, and fax `937-496-5220`. Preserve the non-medical home care positioning.
 
-Routine homepage/About content lives in `src/data/content.js`; services, service areas, testimonials, team, resources and core SEO each have dedicated files in `src/data/`. Do not re-scatter those values across page components or show empty testimonial/team sections.
+Version-controlled fallback content lives in `src/data/`. Production owner edits are validated by `api/_cms.js`, stored privately in Vercel Blob and provided through `src/context/ContentContext.jsx`. Do not bypass that model or show fake testimonials/team profiles.
 
 ## Page structure
 
-The app includes Home, About, Services, seven service details, Service Areas, Request Care, Contact, Careers, Resources, resource articles, Privacy and 404 routes. Keep shared layout in `src/components/layout`, reusable UI in `src/components/ui`, and page sections in `src/components/sections`.
+The public app includes Home, About, Services and service details, Service Areas, Request Care, Contact, Careers, Reviews, Resources/articles, Privacy and 404 routes. `admin.uhhomehealth.com` uses the secure `src/admin` owner portal in the same Vite project. Keep shared layout in `src/components/layout`, reusable UI in `src/components/ui`, and page sections in `src/components/sections`.
 
 ## Maintenance rules
 
@@ -23,4 +23,4 @@ The app includes Home, About, Services, seven service details, Service Areas, Re
 
 ## Deployment
 
-Deploy the `main` branch to the Vercel project targeting `unityhope.vercel.app`. Preserve the SPA rewrite and the `/api/contact` serverless function.
+Deploy `main` to the existing `unityhope` Vercel project. The only canonical public website URL is `https://uhhomehealth.com`; `www` redirects to the apex and the admin portal uses `https://admin.uhhomehealth.com`. Preserve all `/api/*` functions, the dynamic sitemap and the SPA rewrite.

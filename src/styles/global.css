@@ -3528,6 +3528,136 @@ h3 {
   }
 }
 
+/* Final client-ready navigation, service grid and review state */
+.utility-inner > a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: white;
+  font-weight: 700;
+}
+
+.utility-inner > a svg {
+  color: var(--gold-300);
+}
+
+.header-cta {
+  flex: 0 0 auto;
+  padding-inline: 18px;
+  white-space: nowrap;
+}
+
+.desktop-nav {
+  gap: clamp(10px, 1.15vw, 20px);
+}
+
+.desktop-nav > a,
+.nav-dropdown > button {
+  font-size: clamp(1rem, .45vw + .72rem, 1.125rem);
+}
+
+.services-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.2vw, 30px);
+  align-items: stretch;
+}
+
+.services-grid > .service-card:last-child:nth-child(3n + 1) {
+  grid-column: 2;
+}
+
+.services-grid .service-card {
+  min-height: 390px;
+  height: 100%;
+  padding: 32px 28px 28px;
+}
+
+.services-grid .service-card p {
+  max-width: 36ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.services-grid .service-card > a {
+  min-width: 132px;
+  justify-content: center;
+  align-self: center;
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+
+.reviews-empty-state {
+  max-width: 780px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 42px);
+  border: 1px solid rgba(213, 154, 25, .35);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .1);
+}
+
+.reviews-empty-state p {
+  margin: 0;
+  color: white;
+}
+
+@media (max-width: 1260px) and (min-width: 1101px) {
+  .brand-words { display: none; }
+  .header-inner { gap: 18px; }
+}
+
+@media (max-width: 1100px) {
+  .header-cta { display: none; }
+  .mobile-menu nav { display: block; }
+  .mobile-menu nav > a,
+  .mobile-menu nav summary {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--purple-900);
+    font-size: 1.125rem;
+    font-weight: 800;
+    cursor: pointer;
+    list-style: none;
+  }
+  .mobile-menu nav summary::-webkit-details-marker { display: none; }
+  .mobile-menu nav details[open] > summary { color: var(--purple-700); background: var(--lavender-50); }
+  .mobile-menu nav details[open] > summary svg { transform: rotate(180deg); }
+  .mobile-menu nav details > div { display: grid; margin: 0 0 8px 18px; padding-left: 11px; border-left: 2px solid var(--gold-300); }
+  .mobile-menu nav details > div a { min-height: 48px; font-size: 1rem; }
+}
+
+@media (max-width: 900px) {
+  .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services-grid > .service-card:last-child:nth-child(3n + 1) { grid-column: auto; }
+  .services-grid > .service-card:last-child:nth-child(odd) { grid-column: 1 / -1; width: min(100%, 430px); justify-self: center; }
+}
+
+@media (max-width: 620px) {
+  .utility-inner > p { display: none; }
+  .utility-inner { justify-content: center; }
+  .services-grid { grid-template-columns: 1fr; }
+  .services-grid > .service-card:last-child:nth-child(odd) { grid-column: auto; width: 100%; }
+  .services-grid .service-card {
+    min-height: 0;
+    align-items: center;
+    padding: 28px 24px;
+  }
+  .services-grid .service-card h3,
+  .services-grid .service-card p { width: 100%; text-align: center; }
+  .services-grid .service-card > a { margin-top: 10px; }
+  .reviews-empty-state { align-items: stretch; flex-direction: column; text-align: center; }
+  .reviews-empty-state .button { width: 100%; }
+}
+
 @media (max-width: 340px) {
   .header-inner {
     gap: 12px;
@@ -4639,4 +4769,45 @@ h3 {
     width: 100%;
     margin: 0 0 8px;
   }
+}
+
+/* Release cascade guard: keep the final service layout stable at every viewport. */
+.services-section .services-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 2.2vw, 30px); }
+.services-section .services-grid > .service-card:last-child:nth-child(3n + 1) { grid-column: 2; }
+.services-section .services-grid .service-card { min-height: 390px; height: 100%; padding: 32px 28px 28px; }
+.services-section .services-grid .service-card p { max-width: 36ch; font-size: 1.0625rem; line-height: 1.65; }
+.services-section .services-grid .service-card > a { min-width: 132px; justify-content: center; align-self: center; padding: 9px 12px; white-space: nowrap; }
+.footer-social-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+.footer-social-links a { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, .35); border-radius: 50%; color: white; }
+.footer-social-links a:hover { border-color: var(--gold-300); color: var(--gold-200); }
+.about-extended-story { background: var(--lavender-50); }
+.about-extended-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+.about-extended-grid article { padding: clamp(28px, 4vw, 48px); border: 1px solid var(--line); border-radius: 24px; background: white; box-shadow: var(--shadow-sm); }
+.about-extended-grid article p:last-child { margin-bottom: 0; }
+
+@media (max-width: 900px) {
+  .services-section .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services-section .services-grid > .service-card:last-child:nth-child(3n + 1) { grid-column: auto; }
+  .services-section .services-grid > .service-card:last-child:nth-child(odd) { grid-column: 1 / -1; width: min(100%, 430px); justify-self: center; }
+}
+
+@media (max-width: 620px) {
+  .services-section .services-grid { grid-template-columns: 1fr; }
+  .services-section .services-grid > .service-card:last-child:nth-child(odd) { grid-column: auto; width: 100%; }
+  .services-section .services-grid .service-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    grid-template-columns: none;
+    gap: 0;
+    align-items: center;
+    padding: 28px 24px;
+  }
+  .services-section .services-grid .service-card > * { min-width: 0; }
+  .services-section .services-grid .service-card h3,
+  .services-section .services-grid .service-card p { width: 100%; text-align: center; }
+  .services-section .services-grid .service-card > a { width: auto; max-width: 100%; margin-top: 10px; }
+  .about-extended-grid { grid-template-columns: 1fr; }
 }

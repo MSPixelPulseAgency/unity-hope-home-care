@@ -1,16 +1,17 @@
-import { serviceAreas } from "../../data/serviceAreas";
+import { useManagedContent } from "../../context/ContentContext";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 import { SectionTitle } from "../ui/SectionTitle";
 
 export function ServiceArea({ compact = false }) {
+  const { content, visibleAreas } = useManagedContent();
   return (
     <section className={`section service-area-section ${compact ? "service-area-compact" : ""}`}>
       <div className="container service-area-layout">
         <div className="service-area-copy reveal">
           <SectionTitle
             eyebrow="Our Service Area"
-            title="Proudly serving Montgomery County & surrounding areas"
+            title={content.home.serviceAreaWording}
             description="Unity & Hope is locally owned and community focused, with Riverside and Dayton at the heart of our service region."
             align="left"
           />
@@ -18,7 +19,7 @@ export function ServiceArea({ compact = false }) {
           <Button to="/service-areas" variant="outline">View All Areas We Serve</Button>
         </div>
         <div className="county-map reveal reveal-delay" role="img" aria-label="Stylized service area highlighting Montgomery County with surrounding counties">
-          {serviceAreas.map((area) => (
+          {visibleAreas.map((area) => (
             <div
               className={`county-tile ${area.primary ? "county-primary" : ""}`}
               style={{ gridArea: area.gridArea }}
@@ -34,4 +35,3 @@ export function ServiceArea({ compact = false }) {
     </section>
   );
 }
-

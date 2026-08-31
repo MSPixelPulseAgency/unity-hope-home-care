@@ -2,8 +2,8 @@ import { Seo } from "../components/ui/Seo";
 import { PageHero } from "../components/ui/PageHero";
 import { SectionTitle } from "../components/ui/SectionTitle";
 import { Icon } from "../components/ui/Icon";
-import { siteConfig } from "../config/siteConfig";
 import { pageSeo } from "../data/seo";
+import { useManagedContent } from "../context/ContentContext";
 
 const privacyPoints = [
   ["LockKeyhole", "Secure handling", "Personal information should be accessed and handled only for appropriate business and care-related purposes."],
@@ -12,9 +12,11 @@ const privacyPoints = [
 ];
 
 export default function Privacy() {
+  const { content } = useManagedContent();
+  const siteConfig = content.site;
   return (
     <>
-      <Seo {...pageSeo.privacy} />
+      <Seo {...(content.seo.privacy || pageSeo.privacy)} />
       <PageHero eyebrow="Your Privacy Matters" title="Confidentiality. Respect. Care." description="How Unity & Hope approaches client privacy and information submitted through this website." image="/images/caregiver-attentive.webp" imageAlt="A caregiver providing attentive, respectful support to an older woman" breadcrumbs={[{ label: "Privacy" }]} />
       <section className="section privacy-page">
         <div className="container">
