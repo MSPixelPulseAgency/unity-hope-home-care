@@ -1,5 +1,6 @@
 import { cloneDefaultManagedContent } from "../src/data/defaultManagedContent.js";
-import { BlobPreconditionFailedError, readPrivateJson, writePrivateJson } from "./_blob-json.js";
+import { put } from "@vercel/blob";
+import { readPrivateJson } from "./_blob-json.js";
 
 const CONTENT_PATH = "cms/site-content.json";
 const SITE_URL = "https://uhhomehealth.com";
@@ -326,7 +327,7 @@ export const loadManagedContent = async () => {
 
 export const saveManagedSection = async (section, value) => {
   if (!EDITABLE_SECTIONS.has(section)) throw new Error("This content section cannot be edited.");
-  const { content, record } = await loadManagedContent();
+  const { content } = await loadManagedContent();
   const sanitized = sanitizerFor(section, { value, current: content[section] });
   const updated = {
     ...content,
@@ -334,17 +335,23 @@ export const saveManagedSection = async (section, value) => {
     version: 1,
     updatedAt: new Date().toISOString(),
   };
-  try {
-    await writePrivateJson(CONTENT_PATH, updated, record);
-  } catch (error) {
-    if (error instanceof BlobPreconditionFailedError) {
-      const conflict = new Error("Content changed in another session. Refresh and try again.");
-      conflict.code = "CONTENT_CONFLICT";
-      throw conflict;
-    }
-    throw error;
-  }
+  await put(CONTENT_PATH, JSON.stringify(updated), {
+    access: "private",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+    cacheControlMaxAge: 60,
+  });
   return updated;
 };
 
-export const publicManagedContent = (content) => mergeDefaults(content);
+export const publicManagedContent = (content) => {
+  const merged = mergeDefaults(content);
+  return {
+    ...merged,
+    services: merged.services.filter((service) => !service.hidden),
+    serviceAreas: merged.serviceAreas.filter((area) => !area.hidden),
+    team: merged.team.filter((member) => !member.hidden),
+    resources: merged.resources.filter((resource) => resource.status === "published"),
+  };
+};

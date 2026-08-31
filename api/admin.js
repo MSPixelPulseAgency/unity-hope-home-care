@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { put } from "@vercel/blob";
+import { del, list, put } from "@vercel/blob";
 import { adminSiteUrl, authenticateAdminRequest, isAllowedAdminOrigin } from "./_admin-auth.js";
 import { loadManagedContent, saveManagedSection } from "./_cms.js";
 import { adminDeleteReview, adminModerateReview, listAllReviews } from "./_reviews.js";
@@ -116,6 +116,19 @@ export default async function handler(request, response) {
 
     if (request.method === "DELETE") {
       const body = readBody(request);
+      if (section === "media") {
+        const id = normalizeText(body.id);
+        if (!/^[a-f0-9]{32}$/.test(id)) return response.status(400).json({ error: "The media item is invalid." });
+        const { content } = await loadManagedContent();
+        if (JSON.stringify(content).includes(`/api/media?id=${id}`)) {
+          return response.status(409).json({ error: "Remove this image from website content before deleting it." });
+        }
+        const matches = await list({ prefix: `cms/media/${id}.`, limit: 10 });
+        const paths = matches.blobs.map((blob) => blob.pathname);
+        if (!paths.length) return response.status(404).json({ error: "Media item not found." });
+        await del(paths);
+        return response.status(200).json({ message: "Media item deleted." });
+      }
       if (section === "reviews") {
         const deleted = await adminDeleteReview(body.id);
         return deleted ? response.status(200).json({ message: "Review deleted." }) : response.status(404).json({ error: "Review not found." });
@@ -130,7 +143,6 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: "Method not allowed." });
   } catch (error) {
     console.error("Admin request failed", { section, code: error?.code || error?.name || "UNKNOWN" });
-    if (error?.code === "CONTENT_CONFLICT") return response.status(409).json({ error: error.message });
     return response.status(503).json({ error: "The admin request could not be completed. Please try again." });
   }
 }

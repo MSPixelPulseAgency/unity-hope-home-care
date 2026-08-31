@@ -4,7 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default [
-  { ignores: ["dist", "node_modules", "public"] },
+  { ignores: ["dist", "node_modules", "public", ".vercel"] },
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
@@ -21,4 +21,3 @@ export default [
     },
   },
 ];
-
