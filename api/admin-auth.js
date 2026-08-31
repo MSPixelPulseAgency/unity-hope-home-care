@@ -33,9 +33,20 @@ const readBody = (request) => {
 
 const resetMessage = "If that email matches the configured owner, a reset link has been sent.";
 
+const isAdminHost = (request) => {
+  const host = String(request.headers.host || "").split(":")[0].toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1") return true;
+  try {
+    return host === new URL(adminSiteUrl()).hostname;
+  } catch {
+    return false;
+  }
+};
+
 export default async function handler(request, response) {
   response.setHeader("Cache-Control", "no-store, max-age=0");
   response.setHeader("X-Content-Type-Options", "nosniff");
+  if (!isAdminHost(request)) return response.status(404).json({ error: "Not found." });
 
   if (request.method === "GET") {
     const session = await authenticateAdminRequest(request).catch(() => null);
