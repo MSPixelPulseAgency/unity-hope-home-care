@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  adminEmails,
   createPasswordRecord,
   encodePasswordRecord,
+  isAuthorizedAdminEmail,
   validatePassword,
 } from "../api/_admin-auth.js";
 
@@ -22,4 +24,25 @@ test("creates a salted scrypt password record without storing plaintext", async 
   assert.notEqual(first.hash, second.hash);
   assert.ok(!JSON.stringify(first).includes(password));
   assert.match(encodePasswordRecord(first), /^scrypt:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+$/);
+});
+
+test("uses an exact deduplicated admin allowlist without authorizing other email addresses", () => {
+  const previousEmails = process.env.ADMIN_EMAILS;
+  const previousEmail = process.env.ADMIN_EMAIL;
+  process.env.ADMIN_EMAIL = "mspixelpulse@gmail.com";
+  process.env.ADMIN_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinessstudio@gmail.com, mspixelpulse@gmail.com, UHHOMEHEALTHLLC@gmail.com, invalid";
+  try {
+    assert.deepEqual(adminEmails(), [
+      "uhhomehealthllc@gmail.com",
+      "eyesdigitbusinessstudio@gmail.com",
+      "mspixelpulse@gmail.com",
+    ]);
+    assert.equal(isAuthorizedAdminEmail(" EYESDIGITBUSINESSSTUDIO@gmail.com "), true);
+    assert.equal(isAuthorizedAdminEmail("other@example.com"), false);
+  } finally {
+    if (previousEmails === undefined) delete process.env.ADMIN_EMAILS;
+    else process.env.ADMIN_EMAILS = previousEmails;
+    if (previousEmail === undefined) delete process.env.ADMIN_EMAIL;
+    else process.env.ADMIN_EMAIL = previousEmail;
+  }
 });

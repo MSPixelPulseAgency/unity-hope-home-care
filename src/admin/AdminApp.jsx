@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   ["areas", "MapPin", "Service Areas"],
   ["team", "UsersRound", "Team"],
   ["reviews", "MessageCircleHeart", "Reviews"],
+  ["applications", "BriefcaseBusiness", "Applications"],
   ["resources", "BookOpen", "Blog & Resources"],
   ["seo", "Search", "SEO"],
   ["submissions", "Inbox", "Submissions"],
@@ -61,6 +62,7 @@ function AuthScreen({ onAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ loading: false, error: "", message: "" });
 
   const submit = async (event) => {
@@ -98,11 +100,11 @@ function AuthScreen({ onAuthenticated }) {
         <img src="/brand/unity-hope-logo.webp" alt="Unity and Hope Home Care LLC" width="240" height="210" />
         <p className="admin-eyebrow">Secure owner portal</p>
         <h1 id="admin-auth-title">{mode === "login" ? "Welcome back" : mode === "forgot" ? "Reset your password" : "Choose a new password"}</h1>
-        <p>{mode === "login" ? "Sign in to manage website content, reviews and inquiries." : mode === "forgot" ? "We’ll send a one-time reset link to the configured owner email." : "Use at least 14 characters with a letter, number and symbol."}</p>
+        <p>{mode === "login" ? "Sign in to manage website content, reviews and inquiries." : mode === "forgot" ? "We’ll send a one-time reset link if this email is authorized." : "Use at least 14 characters with a letter, number and symbol."}</p>
         <form onSubmit={submit}>
           {mode !== "reset" && <label>Email address<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>}
-          {mode !== "forgot" && <label>{mode === "login" ? "Password" : "New password"}<input type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={mode === "reset" ? 14 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} required /></label>}
-          {mode === "reset" && <label>Confirm new password<input type="password" autoComplete="new-password" minLength="14" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label>}
+          {mode !== "forgot" && <label>{mode === "login" ? "Password" : "New password"}<span className="admin-password-field"><input type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={mode === "reset" ? 14 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} required /><button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((visible) => !visible)}><Icon name={showPassword ? "EyeOff" : "Eye"} size={20} /></button></span></label>}
+          {mode === "reset" && <label>Confirm new password<input type={showPassword ? "text" : "password"} autoComplete="new-password" minLength="14" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></label>}
           {status.error && <p className="admin-alert admin-alert-error" role="alert">{status.error}</p>}
           {status.message && <p className="admin-alert admin-alert-success" role="status">{status.message}</p>}
           <button className="admin-primary-button" disabled={status.loading}>{status.loading ? "Please wait…" : mode === "login" ? "Sign In" : mode === "forgot" ? "Send Reset Link" : "Update Password"}</button>
@@ -178,7 +180,7 @@ function Dashboard({ data, onNavigate }) {
   const cards = [
     ["New inquiries", data?.counts?.inquiries || 0, "Inbox", "submissions"],
     ["Care requests", data?.counts?.careRequests || 0, "HeartHandshake", "submissions"],
-    ["Applications", data?.counts?.applications || 0, "BriefcaseBusiness", "submissions"],
+    ["Applications", data?.counts?.applications || 0, "BriefcaseBusiness", "applications"],
     ["Pending reviews", data?.counts?.pendingReviews || 0, "MessageCircleHeart", "reviews"],
   ];
   return (
@@ -186,15 +188,20 @@ function Dashboard({ data, onNavigate }) {
       <div className="admin-page-heading"><div><p className="admin-eyebrow">At a glance</p><h1>Dashboard</h1><p>Manage the Unity &amp; Hope website and follow up with families.</p></div><a className="admin-secondary-button" href="https://uhhomehealth.com" target="_blank" rel="noreferrer">View Website <Icon name="ExternalLink" size={17} /></a></div>
       <div className="admin-stat-grid">{cards.map(([label, count, icon, section]) => <button key={label} onClick={() => onNavigate(section)}><Icon name={icon} size={25} /><span>{label}</span><strong>{count}</strong></button>)}</div>
       <div className="admin-dashboard-grid">
-        <section className="admin-panel"><h2>Recent submissions</h2>{data?.recentSubmissions?.length ? data.recentSubmissions.map((item) => <button className="admin-list-row" key={item.id} onClick={() => onNavigate("submissions")}><span><strong>{item.fields?.name || "Website visitor"}</strong><small>{item.formType} · {new Date(item.createdAt).toLocaleDateString()}</small></span><b>{item.status}</b></button>) : <EmptyState text="No submissions yet." />}</section>
+        <section className="admin-panel"><h2>Recent submissions</h2>{data?.recentSubmissions?.length ? data.recentSubmissions.map((item) => <button className="admin-list-row" key={item.id} onClick={() => onNavigate(item.formType === "career" ? "applications" : "submissions")}><span><strong>{item.fields?.name || "Website visitor"}</strong><small>{item.formType} · {new Date(item.createdAt).toLocaleDateString()}</small></span><b>{item.status}</b></button>) : <EmptyState text="No submissions yet." />}</section>
         <section className="admin-panel"><h2>Recent reviews</h2>{data?.recentReviews?.length ? data.recentReviews.map((item) => <button className="admin-list-row" key={item.id} onClick={() => onNavigate("reviews")}><span><strong>{item.name}</strong><small>{item.relationship} · {new Date(item.createdAt).toLocaleDateString()}</small></span><b>{item.status}</b></button>) : <EmptyState text="No reviews yet." />}</section>
       </div>
     </>
   );
 }
 
-function EmptyState({ text }) {
-  return <div className="admin-empty"><Icon name="Inbox" size={30} /><p>{text}</p></div>;
+function EmptyState({ text, action }) {
+  return <div className="admin-empty"><Icon name="Inbox" size={30} /><p>{text}</p>{action}</div>;
+}
+
+function LoadState({ state, label, retry }) {
+  if (state !== "error") return <div className="admin-loading" role="status">Loading {label}…</div>;
+  return <div className="admin-load-error" role="alert"><Icon name="AlertTriangle" size={30} /><h2>We couldn’t load {label}</h2><p>Check your connection and try again. No changes were made.</p><button className="admin-secondary-button" type="button" onClick={retry}><Icon name="RefreshCw" size={18} /> Try Again</button></div>;
 }
 
 function WebsiteEditor({ content, setContent, save, saving }) {
@@ -278,7 +285,7 @@ function CollectionEditor({ type, items, setItems, save, saving, csrf }) {
   return (
     <>
       <EditorToolbar title={config.title} description={config.description} onSave={save} saving={saving} action={<button className="admin-secondary-button" type="button" onClick={() => setItems((current) => [...current, config.create()])}><Icon name="Plus" size={18} /> Add New</button>} />
-      <div className="admin-collection">{items.map((item, index) => <details className="admin-editor-card" key={`${item.slug || item.id || item.name}-${index}`} open={index === 0}>
+      <div className="admin-collection">{items.length ? items.map((item, index) => <details className="admin-editor-card" key={`${item.slug || item.id || item.name}-${index}`} open={index === 0}>
         <summary><span><b>{item.title || item.name}</b><small>{item.hidden ? "Hidden" : "Visible"}</small></span><Icon name="ChevronDown" size={20} /></summary>
         <div className="admin-editor-card-body"><div className="admin-item-actions"><button onClick={() => move(index, -1)} disabled={!index} aria-label="Move up"><Icon name="ArrowUp" size={18} /></button><button onClick={() => move(index, 1)} disabled={index === items.length - 1} aria-label="Move down"><Icon name="ArrowDown" size={18} /></button><button className="admin-danger-button" onClick={() => remove(index)}><Icon name="Trash2" size={17} /> Delete</button></div>
           <div className="admin-form-grid">
@@ -289,7 +296,7 @@ function CollectionEditor({ type, items, setItems, save, saving, csrf }) {
           {(type === "services" || type === "team") && <ImageField value={item.image} onChange={(value) => update(index, "image", value)} csrf={csrf} />}
           <Toggle label="Hide from public website" checked={item.hidden} onChange={(value) => update(index, "hidden", value)} />
         </div>
-      </details>)}</div>
+      </details>) : <EmptyState text={type === "team" ? "No team profiles have been added. Add a profile when the details are approved." : `No ${config.title.toLowerCase()} have been added.`} action={<button className="admin-secondary-button" type="button" onClick={() => setItems([config.create()])}><Icon name="Plus" size={18} /> Add {type === "team" ? "Team Member" : "New Item"}</button>} />}</div>
     </>
   );
 }
@@ -313,14 +320,42 @@ function ReviewsManager({ reviews, refresh, mutate, busy }) {
 
 function ResourcesEditor({ items, setItems, save, saving, csrf }) {
   const update = (index, key, value) => setItems((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item));
-  const updateSection = (itemIndex, sectionIndex, key, value) => setItems((current) => current.map((item, index) => index !== itemIndex ? item : { ...item, sections: item.sections.map((section, indexValue) => indexValue === sectionIndex ? { ...section, [key]: value } : section) }));
+  const updateSection = (itemIndex, sectionIndex, key, value) => setItems((current) => current.map((item, index) => index !== itemIndex ? item : {
+    ...item,
+    sections: item.sections.map((section, indexValue) => indexValue === sectionIndex ? { ...section, [key]: value } : section),
+  }));
+  const addButton = <button className="admin-secondary-button" type="button" onClick={() => setItems((current) => [...current, emptyResource()])}><Icon name="Plus" size={18} /> New Article</button>;
   return (
-    <><EditorToolbar title="Blog & Resources" description="Create original educational content, keep drafts private and publish when ready." onSave={save} saving={saving} action={<button className="admin-secondary-button" onClick={() => setItems((current) => [...current, emptyResource()])}><Icon name="Plus" size={18} /> New Article</button>} />
-      <div className="admin-collection">{items.map((item, itemIndex) => <details className="admin-editor-card" key={`${item.slug}-${itemIndex}`}><summary><span><b>{item.title}</b><small>{item.status}</small></span><Icon name="ChevronDown" size={20} /></summary><div className="admin-editor-card-body"><div className="admin-item-actions"><button className="admin-danger-button" onClick={() => window.confirm("Delete this article after the next save?") && setItems((current) => current.filter((_, index) => index !== itemIndex))}><Icon name="Trash2" size={17} /> Delete</button></div><div className="admin-form-grid">
-        <Field label="Article title" value={item.title} onChange={(value) => update(itemIndex, "title", value)} required /><Field label="URL slug" value={item.slug} onChange={(value) => update(itemIndex, "slug", value)} /><Field label="Excerpt" rows={3} value={item.excerpt} onChange={(value) => update(itemIndex, "excerpt", value)} /><Field label="Image alt text" value={item.imageAlt} onChange={(value) => update(itemIndex, "imageAlt", value)} /><Field label="Author" value={item.author} onChange={(value) => update(itemIndex, "author", value)} /><Field label="Publish date" type="date" value={item.publishedDate} onChange={(value) => update(itemIndex, "publishedDate", value)} /><Field label="Read time" value={item.readTime} onChange={(value) => update(itemIndex, "readTime", value)} /><Field label="Status" value={item.status} onChange={() => {}}><select value={item.status} onChange={(event) => update(itemIndex, "status", event.target.value)}><option value="draft">Draft</option><option value="published">Published</option></select></Field><Field label="SEO title" value={item.seoTitle} onChange={(value) => update(itemIndex, "seoTitle", value)} /><Field label="SEO description" rows={3} value={item.seoDescription} onChange={(value) => update(itemIndex, "seoDescription", value)} /></div>
-        <ImageField value={item.image} onChange={(value) => update(itemIndex, "image", value)} csrf={csrf} label="Article image" />
-        <div className="admin-sections-editor"><h3>Article sections</h3>{(item.sections || []).map((section, sectionIndex) => <div className="admin-section-row" key={sectionIndex}><Field label={`Heading ${sectionIndex + 1}`} value={section.heading} onChange={(value) => updateSection(itemIndex, sectionIndex, "heading", value)} /><Field label="Body" rows={7} value={section.body} onChange={(value) => updateSection(itemIndex, sectionIndex, "body", value)} /><button className="admin-danger-button" onClick={() => update(itemIndex, "sections", item.sections.filter((_, index) => index !== sectionIndex))}><Icon name="Trash2" size={16} /> Remove section</button></div>)}<button className="admin-secondary-button" onClick={() => update(itemIndex, "sections", [...(item.sections || []), { heading: "", body: "" }])}><Icon name="Plus" size={17} /> Add Section</button></div>
-      </div></details>)}</div>
+    <>
+      <EditorToolbar title="Blog & Resources" description="Create original educational content, keep drafts private and publish when ready." onSave={save} saving={saving} action={addButton} />
+      <div className="admin-collection">
+        {items.length ? items.map((item, itemIndex) => (
+          <details className="admin-editor-card" key={`${item.slug}-${itemIndex}`}>
+            <summary><span><b>{item.title}</b><small>{item.status}</small></span><Icon name="ChevronDown" size={20} /></summary>
+            <div className="admin-editor-card-body">
+              <div className="admin-item-actions"><button className="admin-danger-button" type="button" onClick={() => window.confirm("Delete this article after the next save?") && setItems((current) => current.filter((_, index) => index !== itemIndex))}><Icon name="Trash2" size={17} /> Delete</button></div>
+              <div className="admin-form-grid">
+                <Field label="Article title" value={item.title} onChange={(value) => update(itemIndex, "title", value)} required />
+                <Field label="URL slug" value={item.slug} onChange={(value) => update(itemIndex, "slug", value)} />
+                <Field label="Excerpt" rows={3} value={item.excerpt} onChange={(value) => update(itemIndex, "excerpt", value)} />
+                <Field label="Image alt text" value={item.imageAlt} onChange={(value) => update(itemIndex, "imageAlt", value)} />
+                <Field label="Author" value={item.author} onChange={(value) => update(itemIndex, "author", value)} />
+                <Field label="Publish date" type="date" value={item.publishedDate} onChange={(value) => update(itemIndex, "publishedDate", value)} />
+                <Field label="Read time" value={item.readTime} onChange={(value) => update(itemIndex, "readTime", value)} />
+                <Field label="Status" value={item.status} onChange={() => {}}><select value={item.status} onChange={(event) => update(itemIndex, "status", event.target.value)}><option value="draft">Draft</option><option value="published">Published</option></select></Field>
+                <Field label="SEO title" value={item.seoTitle} onChange={(value) => update(itemIndex, "seoTitle", value)} />
+                <Field label="SEO description" rows={3} value={item.seoDescription} onChange={(value) => update(itemIndex, "seoDescription", value)} />
+              </div>
+              <ImageField value={item.image} onChange={(value) => update(itemIndex, "image", value)} csrf={csrf} label="Article image" />
+              <div className="admin-sections-editor">
+                <h3>Article sections</h3>
+                {(item.sections || []).map((section, sectionIndex) => <div className="admin-section-row" key={sectionIndex}><Field label={`Heading ${sectionIndex + 1}`} value={section.heading} onChange={(value) => updateSection(itemIndex, sectionIndex, "heading", value)} /><Field label="Body" rows={7} value={section.body} onChange={(value) => updateSection(itemIndex, sectionIndex, "body", value)} /><button className="admin-danger-button" type="button" onClick={() => update(itemIndex, "sections", item.sections.filter((_, index) => index !== sectionIndex))}><Icon name="Trash2" size={16} /> Remove section</button></div>)}
+                <button className="admin-secondary-button" type="button" onClick={() => update(itemIndex, "sections", [...(item.sections || []), { heading: "", body: "" }])}><Icon name="Plus" size={17} /> Add Section</button>
+              </div>
+            </div>
+          </details>
+        )) : <EmptyState text="No resources have been added." action={addButton} />}
+      </div>
     </>
   );
 }
@@ -330,19 +365,99 @@ function SeoEditor({ seo, setSeo, save, saving }) {
   return <><EditorToolbar title="SEO" description="Edit unique search titles and descriptions. Canonical URLs remain protected." onSave={save} saving={saving} /><div className="admin-collection">{Object.entries(seo).map(([key, entry]) => <section className="admin-panel" key={key}><div className="admin-card-meta"><b>{key}</b><span>{entry.path}</span></div><div className="admin-form-grid"><Field label="Meta title" value={entry.title} onChange={(value) => update(key, "title", value)} /><Field label="Meta description" rows={3} value={entry.description} onChange={(value) => update(key, "description", value)} /></div></section>)}</div></>;
 }
 
-function SubmissionsManager({ submissions, refresh, mutate, busy }) {
-  const [filter, setFilter] = useState("all");
+const submissionStatusOptions = [
+  ["new", "New"],
+  ["reviewing", "Reviewing"],
+  ["contacted", "Contacted"],
+  ["closed", "Closed"],
+  ["read", "Read (legacy)"],
+  ["in-progress", "In progress (legacy)"],
+  ["completed", "Completed (legacy)"],
+];
+
+const submissionLabel = (formType) => ({
+  contact: "Contact inquiry",
+  "request-care": "Care request",
+  career: "Caregiver application",
+}[formType] || "Website submission");
+
+const defaultEmailSubject = (item) => item.formType === "career"
+  ? "Following up on your Unity & Hope application"
+  : "Following up on your Unity & Hope inquiry";
+
+function SubmissionCard({ item, busy, onUpdate, onDelete, onEmail }) {
+  const [notes, setNotes] = useState(item.notes || "");
+  const [subject, setSubject] = useState(defaultEmailSubject(item));
+  const [message, setMessage] = useState("");
+  const sendEmail = async (event) => {
+    event.preventDefault();
+    const sent = await onEmail(item.id, subject, message);
+    if (sent) setMessage("");
+  };
+  return (
+    <details className="admin-editor-card" key={item.id}>
+      <summary>
+        <span><b>{item.fields?.name || "Website visitor"}</b><small>{submissionLabel(item.formType)} · {new Date(item.createdAt).toLocaleString()}</small></span>
+        <span className="admin-summary-status"><b>{item.status}</b>{item.archived && <small>Archived</small>}</span>
+      </summary>
+      <div className="admin-editor-card-body">
+        <dl className="admin-details-list">{Object.entries(item.fields || {}).filter(([, value]) => value !== "" && value !== false && value != null).map(([key, value]) => <div key={key}><dt>{key.replace(/([A-Z])/g, " $1")}</dt><dd>{Array.isArray(value) ? value.join(", ") : String(value)}</dd></div>)}</dl>
+        <section className="admin-workflow-panel" aria-labelledby={`workflow-${item.id}`}>
+          <h3 id={`workflow-${item.id}`}>Follow-up workflow</h3>
+          <div className="admin-workflow-grid">
+            <label className="admin-status-select">Status<select value={item.status} disabled={busy} onChange={(event) => onUpdate(item.id, { status: event.target.value })}>{submissionStatusOptions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+            <Field label="Private owner notes" rows={4} value={notes} onChange={setNotes} help="Visible only to signed-in administrators." />
+          </div>
+          <div className="admin-row-actions admin-row-actions-start">
+            <button className="admin-primary-button" type="button" disabled={busy || notes === (item.notes || "")} onClick={() => onUpdate(item.id, { notes })}><Icon name="NotebookPen" size={17} /> Save Notes</button>
+            {item.resume && <a className="admin-secondary-button" href={`/api/admin?section=submission-file&id=${item.id}`}><Icon name="Download" size={17} /> Download {item.resume.filename}</a>}
+            <button className="admin-secondary-button" type="button" disabled={busy} onClick={() => onUpdate(item.id, { archived: !item.archived })}><Icon name={item.archived ? "ArchiveRestore" : "Archive"} size={17} /> {item.archived ? "Restore" : "Archive"}</button>
+            <button className="admin-danger-button" type="button" disabled={busy} onClick={() => window.confirm("Permanently delete this submission and its attachment? This cannot be undone.") && onDelete(item.id)}><Icon name="Trash2" size={17} /> Delete</button>
+          </div>
+        </section>
+        <details className="admin-email-composer">
+          <summary><Icon name="Mail" size={18} /> Email {item.formType === "career" ? "Applicant" : "Submitter"}</summary>
+          <form onSubmit={sendEmail}>
+            <Field label="Recipient" value={item.fields?.email || "No email available"} onChange={() => {}}><input value={item.fields?.email || "No email available"} readOnly /></Field>
+            <Field label="Subject" value={subject} onChange={setSubject} required />
+            <Field label="Message" rows={6} value={message} onChange={setMessage} required help="The email is sent from the configured Unity & Hope mailbox. Replies go to the business inbox." />
+            <button className="admin-primary-button" disabled={busy || !item.fields?.email}><Icon name="Send" size={17} /> Send Email</button>
+          </form>
+        </details>
+        <section className="admin-activity" aria-labelledby={`activity-${item.id}`}>
+          <h3 id={`activity-${item.id}`}>Activity</h3>
+          {item.activity?.length ? <ol>{[...item.activity].reverse().map((entry, index) => <li key={`${entry.createdAt}-${index}`}><Icon name="History" size={17} /><span><b>{String(entry.type || "updated").replaceAll("-", " ")}</b>{entry.detail && <small>{entry.detail}</small>}<small>{new Date(entry.createdAt).toLocaleString()} · {entry.actor || "system"}</small></span></li>)}</ol> : <p className="admin-muted">No activity has been recorded yet.</p>}
+        </section>
+      </div>
+    </details>
+  );
+}
+
+function SubmissionsManager({ submissions, refresh, update, remove, sendEmail, busy, mode = "submissions" }) {
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [archiveFilter, setArchiveFilter] = useState("active");
   const [query, setQuery] = useState("");
-  const visible = submissions.filter((item) => {
-    const matchesType = filter === "all" || item.formType === filter;
-    const haystack = JSON.stringify(item.fields || {}).toLowerCase();
-    return matchesType && haystack.includes(query.trim().toLowerCase());
+  const applications = mode === "applications";
+  const scoped = submissions.filter((item) => applications ? item.formType === "career" : item.formType !== "career");
+  const visible = scoped.filter((item) => {
+    const matchesType = applications || typeFilter === "all" || item.formType === typeFilter;
+    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+    const matchesArchive = archiveFilter === "all" || (archiveFilter === "archived" ? item.archived : !item.archived);
+    const haystack = `${JSON.stringify(item.fields || {})} ${item.notes || ""}`.toLowerCase();
+    return matchesType && matchesStatus && matchesArchive && haystack.includes(query.trim().toLowerCase());
   });
   return (
-    <><div className="admin-page-heading"><div><p className="admin-eyebrow">Secure inbox</p><h1>Submissions</h1><p>Contact messages, care requests, applications and résumé downloads.</p></div><button className="admin-secondary-button" onClick={refresh}><Icon name="RefreshCw" size={18} /> Refresh</button></div>
-      <div className="admin-search-row"><label><span className="sr-only">Search submissions</span><Icon name="Search" size={18} /><input type="search" placeholder="Search name, email or details" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
-      <div className="admin-filter-row" role="group" aria-label="Filter submissions">{[["all", "All"], ["contact", "Contact"], ["request-care", "Care Requests"], ["career", "Careers"]].map(([value, label]) => <button className={filter === value ? "active" : ""} onClick={() => setFilter(value)} key={value}>{label}</button>)}</div>
-      <div className="admin-collection">{visible.length ? visible.map((item) => <details className="admin-editor-card" key={item.id}><summary><span><b>{item.fields?.name || "Website visitor"}</b><small>{item.formType} · {new Date(item.createdAt).toLocaleString()}</small></span><b>{item.status}</b></summary><div className="admin-editor-card-body"><dl className="admin-details-list">{Object.entries(item.fields || {}).filter(([, value]) => value !== "" && value !== false && value != null).map(([key, value]) => <div key={key}><dt>{key.replace(/([A-Z])/g, " $1")}</dt><dd>{Array.isArray(value) ? value.join(", ") : String(value)}</dd></div>)}</dl><div className="admin-row-actions"><label className="admin-status-select">Status<select value={item.status} disabled={busy} onChange={(event) => mutate(item.id, "status", event.target.value)}><option value="new">New</option><option value="read">Read</option><option value="in-progress">In progress</option><option value="completed">Completed</option></select></label>{item.resume && <a className="admin-secondary-button" href={`/api/admin?section=submission-file&id=${item.id}`}><Icon name="Download" size={17} /> Download {item.resume.filename}</a>}<button className="admin-danger-button" disabled={busy} onClick={() => window.confirm("Permanently delete this submission and its attachment?") && mutate(item.id, "delete")}><Icon name="Trash2" size={17} /> Delete</button></div></div></details>) : <EmptyState text="No matching submissions." />}</div>
+    <>
+      <div className="admin-page-heading"><div><p className="admin-eyebrow">Secure inbox</p><h1>{applications ? "Careers & Applications" : "Submissions"}</h1><p>{applications ? "Review applicants, access résumés securely and record every follow-up." : "Manage contact messages and care requests without mixing them with job applications."}</p></div><button className="admin-secondary-button" type="button" onClick={refresh} disabled={busy}><Icon name="RefreshCw" size={18} /> Refresh</button></div>
+      <div className="admin-search-row">
+        <label><span className="sr-only">Search {applications ? "applications" : "submissions"}</span><Icon name="Search" size={18} /><input type="search" placeholder="Search name, email, details or notes" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+        <label><span className="sr-only">Filter status</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option>{submissionStatusOptions.slice(0, 4).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+        <label><span className="sr-only">Filter archived records</span><select value={archiveFilter} onChange={(event) => setArchiveFilter(event.target.value)}><option value="active">Active only</option><option value="archived">Archived only</option><option value="all">Active and archived</option></select></label>
+      </div>
+      {!applications && <div className="admin-filter-row" role="group" aria-label="Filter submission type">{[["all", "All"], ["contact", "Contact"], ["request-care", "Care Requests"]].map(([value, label]) => <button type="button" className={typeFilter === value ? "active" : ""} onClick={() => setTypeFilter(value)} key={value}>{label}</button>)}</div>}
+      <p className="admin-results-count" role="status">Showing {visible.length} of {scoped.length} {applications ? "applications" : "submissions"}</p>
+      <div className="admin-collection">{visible.length ? visible.map((item) => <SubmissionCard item={item} busy={busy} onUpdate={update} onDelete={remove} onEmail={sendEmail} key={`${item.id}-${item.updatedAt}`} />) : <EmptyState text={`No matching ${applications ? "applications" : "submissions"}.`} />}</div>
     </>
   );
 }
@@ -357,6 +472,7 @@ export default function AdminApp() {
   const [submissions, setSubmissions] = useState([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState({ type: "", text: "" });
+  const [loadState, setLoadState] = useState({ content: "idle", dashboard: "idle", reviews: "idle", submissions: "idle" });
 
   useEffect(() => {
     document.title = "Unity & Hope Owner Portal";
@@ -381,10 +497,30 @@ export default function AdminApp() {
     api("/api/admin-auth").then((result) => setAuth({ checking: false, ...result })).catch(signedOut);
   }, [signedOut]);
 
-  const loadContent = useCallback(() => run(async () => { const result = await api("/api/admin?section=content"); setContent(result.content); }), [run]);
-  const loadDashboard = useCallback(() => run(async () => { const result = await api("/api/admin?section=dashboard"); setDashboard(result); }), [run]);
-  const loadReviews = useCallback(() => run(async () => { const result = await api("/api/admin?section=reviews"); setReviews(result.reviews || []); }), [run]);
-  const loadSubmissions = useCallback(() => run(async () => { const result = await api("/api/admin?section=submissions"); setSubmissions(result.submissions || []); }), [run]);
+  const loadContent = useCallback(async () => {
+    setLoadState((current) => ({ ...current, content: "loading" }));
+    const result = await run(() => api("/api/admin?section=content"));
+    if (result) setContent(result.content);
+    setLoadState((current) => ({ ...current, content: result ? "ready" : "error" }));
+  }, [run]);
+  const loadDashboard = useCallback(async () => {
+    setLoadState((current) => ({ ...current, dashboard: "loading" }));
+    const result = await run(() => api("/api/admin?section=dashboard"));
+    if (result) setDashboard(result);
+    setLoadState((current) => ({ ...current, dashboard: result ? "ready" : "error" }));
+  }, [run]);
+  const loadReviews = useCallback(async () => {
+    setLoadState((current) => ({ ...current, reviews: "loading" }));
+    const result = await run(() => api("/api/admin?section=reviews"));
+    if (result) setReviews(result.reviews || []);
+    setLoadState((current) => ({ ...current, reviews: result ? "ready" : "error" }));
+  }, [run]);
+  const loadSubmissions = useCallback(async () => {
+    setLoadState((current) => ({ ...current, submissions: "loading" }));
+    const result = await run(() => api("/api/admin?section=submissions"));
+    if (result) setSubmissions(result.submissions || []);
+    setLoadState((current) => ({ ...current, submissions: result ? "ready" : "error" }));
+  }, [run]);
 
   useEffect(() => {
     if (!auth.authenticated) return;
@@ -392,7 +528,7 @@ export default function AdminApp() {
       if (!content) loadContent();
       if (section === "dashboard") loadDashboard();
       if (section === "reviews") loadReviews();
-      if (section === "submissions") loadSubmissions();
+      if (section === "submissions" || section === "applications") loadSubmissions();
     });
   }, [auth.authenticated, content, loadContent, loadDashboard, loadReviews, loadSubmissions, section]);
 
@@ -406,10 +542,23 @@ export default function AdminApp() {
     await loadReviews();
   }, action === "delete" ? "Review deleted." : "Review updated.");
 
-  const updateSubmission = (id, action, status) => run(async () => {
-    await api("/api/admin?section=submissions", { method: action === "delete" ? "DELETE" : "PUT", csrf: auth.csrf, body: JSON.stringify({ id, status }) });
-    await loadSubmissions();
-  }, action === "delete" ? "Submission deleted." : "Submission updated.");
+  const updateSubmission = (id, changes) => run(async () => {
+    const result = await api("/api/admin?section=submissions", { method: "PUT", csrf: auth.csrf, body: JSON.stringify({ id, ...changes }) });
+    setSubmissions((current) => current.map((item) => item.id === id ? result.submission : item));
+    return result;
+  }, "Submission updated.");
+
+  const deleteSubmission = (id) => run(async () => {
+    const result = await api("/api/admin?section=submissions", { method: "DELETE", csrf: auth.csrf, body: JSON.stringify({ id }) });
+    setSubmissions((current) => current.filter((item) => item.id !== id));
+    return result;
+  }, "Submission deleted.");
+
+  const emailSubmission = (id, subject, message) => run(async () => {
+    const result = await api("/api/admin?section=submissions", { method: "POST", csrf: auth.csrf, body: JSON.stringify({ action: "send-email", id, subject, message }) });
+    setSubmissions((current) => current.map((item) => item.id === id ? result.submission : item));
+    return result;
+  }, "Email sent and activity recorded.");
 
   const logout = () => run(async () => {
     await api("/api/admin-auth", { method: "POST", csrf: auth.csrf, body: JSON.stringify({ action: "logout" }) });
@@ -418,16 +567,20 @@ export default function AdminApp() {
 
   const navigate = (value) => { setSection(value); setMenuOpen(false); setNotice({ type: "", text: "" }); window.scrollTo(0, 0); };
   const page = (() => {
-    if (!content && !["dashboard", "reviews", "submissions"].includes(section)) return <div className="admin-loading">Loading website content…</div>;
+    if (section === "dashboard" && loadState.dashboard !== "ready") return <LoadState state={loadState.dashboard} label="your dashboard" retry={loadDashboard} />;
+    if (section === "reviews" && loadState.reviews !== "ready") return <LoadState state={loadState.reviews} label="reviews" retry={loadReviews} />;
+    if ((section === "submissions" || section === "applications") && loadState.submissions !== "ready") return <LoadState state={loadState.submissions} label={section === "applications" ? "applications" : "submissions"} retry={loadSubmissions} />;
+    if (!content && !["dashboard", "reviews", "submissions", "applications"].includes(section)) return <LoadState state={loadState.content} label="website content" retry={loadContent} />;
     if (section === "dashboard") return <Dashboard data={dashboard} onNavigate={navigate} />;
     if (section === "website") return <WebsiteEditor content={content} setContent={setContent} save={saveSection} saving={busy} />;
     if (section === "services") return <CollectionEditor type="services" items={content.services} setItems={(updater) => setContent((current) => ({ ...current, services: typeof updater === "function" ? updater(current.services) : updater }))} save={() => saveSection("services")} saving={busy} csrf={auth.csrf} />;
     if (section === "areas") return <CollectionEditor type="areas" items={content.serviceAreas} setItems={(updater) => setContent((current) => ({ ...current, serviceAreas: typeof updater === "function" ? updater(current.serviceAreas) : updater }))} save={() => saveSection("serviceAreas")} saving={busy} csrf={auth.csrf} />;
-    if (section === "team") return <CollectionEditor type="team" items={content.team} setItems={(updater) => setContent((current) => ({ ...current, team: typeof updater === "function" ? updater(current.team) : updater }))} save={() => saveSection("team")} saving={busy} csrf={auth.csrf} />;
+    if (section === "team") return <CollectionEditor type="team" items={content.team || []} setItems={(updater) => setContent((current) => ({ ...current, team: typeof updater === "function" ? updater(current.team || []) : updater }))} save={() => saveSection("team")} saving={busy} csrf={auth.csrf} />;
     if (section === "reviews") return <ReviewsManager reviews={reviews} refresh={loadReviews} mutate={moderateReview} busy={busy} />;
     if (section === "resources") return <ResourcesEditor items={content.resources} setItems={(updater) => setContent((current) => ({ ...current, resources: typeof updater === "function" ? updater(current.resources) : updater }))} save={() => saveSection("resources")} saving={busy} csrf={auth.csrf} />;
     if (section === "seo") return <SeoEditor seo={content.seo} setSeo={(updater) => setContent((current) => ({ ...current, seo: typeof updater === "function" ? updater(current.seo) : updater }))} save={() => saveSection("seo")} saving={busy} />;
-    return <SubmissionsManager submissions={submissions} refresh={loadSubmissions} mutate={updateSubmission} busy={busy} />;
+    if (section === "applications") return <SubmissionsManager mode="applications" submissions={submissions} refresh={loadSubmissions} update={updateSubmission} remove={deleteSubmission} sendEmail={emailSubmission} busy={busy} />;
+    return <SubmissionsManager submissions={submissions} refresh={loadSubmissions} update={updateSubmission} remove={deleteSubmission} sendEmail={emailSubmission} busy={busy} />;
   })();
 
   if (auth.checking) return <main className="admin-auth-shell"><div className="admin-loading">Checking secure session…</div></main>;
@@ -438,7 +591,7 @@ export default function AdminApp() {
       <a className="skip-link" href="#admin-main">Skip to main content</a>
       <aside className={`admin-sidebar ${menuOpen ? "is-open" : ""}`} id="admin-sidebar">
         <div className="admin-brand"><img src="/brand/unity-hope-mark.webp" alt="" width="48" height="48" /><span><strong>Unity &amp; Hope</strong><small>Owner Portal</small></span></div>
-        <nav aria-label="Admin navigation">{NAV_ITEMS.map(([value, icon, label]) => <button className={section === value ? "active" : ""} key={value} onClick={() => navigate(value)}><Icon name={icon} size={20} /> {label}</button>)}</nav>
+        <nav aria-label="Admin navigation">{NAV_ITEMS.map(([value, icon, label]) => <button className={section === value ? "active" : ""} aria-current={section === value ? "page" : undefined} key={value} onClick={() => navigate(value)}><Icon name={icon} size={20} /> {label}</button>)}</nav>
         <div className="admin-sidebar-footer"><small>Signed in as<br />{auth.email}</small><button onClick={logout}><Icon name="LogOut" size={18} /> Sign Out</button></div>
       </aside>
       <header className="admin-mobile-header"><button aria-expanded={menuOpen} aria-controls="admin-sidebar" onClick={() => setMenuOpen((open) => !open)}><Icon name={menuOpen ? "X" : "Menu"} size={24} /></button><strong>Unity &amp; Hope</strong><a href="https://uhhomehealth.com" aria-label="Open public website"><Icon name="ExternalLink" size={21} /></a></header>

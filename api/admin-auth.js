@@ -1,5 +1,4 @@
 import {
-  adminEmail,
   adminSiteUrl,
   allowPasswordResetRequest,
   authenticateAdminRequest,
@@ -11,6 +10,7 @@ import {
   createPasswordReset,
   destroyAdminSession,
   finishPasswordReset,
+  isAuthorizedAdminEmail,
   isAllowedAdminOrigin,
   recordLoginFailure,
   sessionCookieHeader,
@@ -75,7 +75,7 @@ export default async function handler(request, response) {
       return response.status(401).json({ error: "The email or password is incorrect." });
     }
     await clearLoginRate(rate);
-    const session = await createAdminSession();
+    const session = await createAdminSession(email);
     response.setHeader("Set-Cookie", sessionCookieHeader(session.token));
     return response.status(200).json({ authenticated: true, email: session.email, csrf: session.csrf, expiresAt: session.expiresAt });
   }
@@ -90,16 +90,16 @@ export default async function handler(request, response) {
 
   if (action === "request-reset") {
     const email = normalizeText(body.email).toLowerCase();
-    if (email === adminEmail() && await allowPasswordResetRequest(request, email)) {
+    if (isAuthorizedAdminEmail(email) && await allowPasswordResetRequest(request, email)) {
       try {
         const config = getEmailConfig();
-        const reset = await createPasswordReset();
+        const reset = await createPasswordReset(email);
         const resetUrl = `${adminSiteUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
         const message = createPasswordResetEmail({ resetUrl });
         const transporter = createMailTransporter(config);
         await transporter.sendMail({
           from: { name: "Unity & Hope Admin", address: config.gmailUser },
-          to: config.adminEmail,
+          to: email,
           replyTo: config.adminEmail,
           subject: message.subject,
           html: message.html,
@@ -119,7 +119,7 @@ export default async function handler(request, response) {
     const reset = await consumePasswordReset(body.token);
     if (!reset) return response.status(400).json({ error: "This reset link is invalid, expired or already used." });
     try {
-      await setAdminPassword(body.password);
+      await setAdminPassword(reset.email, body.password);
       await finishPasswordReset(reset);
       response.setHeader("Set-Cookie", clearSessionCookieHeader());
       return response.status(200).json({ message: "Your password has been updated. You can now sign in." });

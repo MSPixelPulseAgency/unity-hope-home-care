@@ -17,6 +17,7 @@ import { normalizeText, requestClientKey } from "./_request-security.js";
 
 const scrypt = promisify(scryptCallback);
 const AUTH_PATH = "admin/auth.json";
+const ACCOUNT_PREFIX = "admin/accounts/";
 const SESSION_PREFIX = "admin/sessions/";
 const RATE_PREFIX = "admin/login-rate/";
 const RESET_RATE_PREFIX = "admin/reset-rate/";
@@ -26,6 +27,7 @@ const SESSION_LIFETIME_MS = 8 * 60 * 60 * 1000;
 const RESET_LIFETIME_MS = 30 * 60 * 1000;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 6;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const sha256 = (value) => createHash("sha256").update(String(value)).digest("hex");
 const base64url = (value) => Buffer.from(value).toString("base64url");
@@ -38,6 +40,15 @@ const equal = (left, right) => {
 };
 
 export const adminEmail = () => normalizeText(process.env.ADMIN_EMAIL || process.env.CONTACT_TO_EMAIL).toLowerCase();
+export const adminEmails = () => {
+  const configured = String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => normalizeText(email).toLowerCase())
+    .filter((email) => EMAIL_PATTERN.test(email));
+  const fallback = adminEmail();
+  return [...new Set(configured.length ? configured : (EMAIL_PATTERN.test(fallback) ? [fallback] : []))];
+};
+export const isAuthorizedAdminEmail = (email) => adminEmails().includes(normalizeText(email).toLowerCase());
 export const adminSiteUrl = () => normalizeText(process.env.ADMIN_ORIGIN || "https://admin.uhhomehealth.com").replace(/\/$/, "");
 
 export const sessionSecret = () => {
@@ -94,50 +105,69 @@ export const createPasswordRecord = async (password, email = adminEmail()) => {
 
 export const encodePasswordRecord = (record) => `scrypt:${record.salt}:${record.hash}`;
 
-const envPasswordRecord = () => {
+const accountPath = (email) => `${ACCOUNT_PREFIX}${sha256(normalizeText(email).toLowerCase())}.json`;
+
+const envPasswordRecord = (email) => {
   const encoded = normalizeText(process.env.ADMIN_PASSWORD_HASH);
   const [algorithm, salt, hash] = encoded.split(":");
-  if (algorithm !== "scrypt" || !salt || !hash) return null;
-  return { version: 1, email: adminEmail(), salt, hash, source: "environment" };
+  if (email !== adminEmail() || algorithm !== "scrypt" || !salt || !hash) return null;
+  return { version: 1, email, salt, hash, source: "environment" };
 };
 
-export const readPasswordRecord = async () => {
-  const stored = await readPrivateJson(AUTH_PATH);
-  return stored?.value || envPasswordRecord();
+export const readPasswordRecord = async (email = adminEmail()) => {
+  const normalizedEmail = normalizeText(email).toLowerCase();
+  if (!isAuthorizedAdminEmail(normalizedEmail)) return null;
+  const stored = await readPrivateJson(accountPath(normalizedEmail));
+  if (stored?.value?.email === normalizedEmail) return stored.value;
+  if (normalizedEmail === adminEmail()) {
+    const legacy = await readPrivateJson(AUTH_PATH);
+    if (legacy?.value?.salt && legacy.value?.hash && (!legacy.value.email || legacy.value.email === normalizedEmail)) {
+      return { ...legacy.value, email: normalizedEmail, source: "legacy" };
+    }
+  }
+  return envPasswordRecord(normalizedEmail);
 };
 
 export const verifyAdminPassword = async (email, password) => {
-  const expectedEmail = adminEmail();
-  if (!expectedEmail || !equal(normalizeText(email).toLowerCase(), expectedEmail)) return false;
-  const record = await readPasswordRecord();
+  const normalizedEmail = normalizeText(email).toLowerCase();
+  if (!isAuthorizedAdminEmail(normalizedEmail)) return false;
+  const record = await readPasswordRecord(normalizedEmail);
   if (!record?.salt || !record?.hash) return false;
   const derived = await scrypt(String(password || ""), record.salt, 64);
   return equal(Buffer.from(derived).toString("base64url"), record.hash);
 };
 
-const revokeAllSessions = async () => {
+const revokeAdminSessions = async (email) => {
   const sessions = await listPrivateJson(SESSION_PREFIX, 500);
-  const paths = sessions.map((session) => session?.blob?.pathname).filter(Boolean);
+  const paths = sessions
+    .filter((session) => session?.value?.email === email)
+    .map((session) => session?.blob?.pathname)
+    .filter(Boolean);
   if (paths.length) await deletePrivatePath(paths);
 };
 
-export const setAdminPassword = async (password) => {
+export const setAdminPassword = async (email, password) => {
+  const normalizedEmail = normalizeText(email).toLowerCase();
+  if (!isAuthorizedAdminEmail(normalizedEmail)) throw new Error("This account is not authorized.");
   const error = validatePassword(password);
   if (error) throw new Error(error);
-  const current = await readPrivateJson(AUTH_PATH);
-  const record = await createPasswordRecord(password);
-  await writePrivateJson(AUTH_PATH, record, current);
-  await revokeAllSessions();
+  const pathname = accountPath(normalizedEmail);
+  const current = await readPrivateJson(pathname);
+  const record = await createPasswordRecord(password, normalizedEmail);
+  await writePrivateJson(pathname, record, current);
+  await revokeAdminSessions(normalizedEmail);
   return record;
 };
 
 const sessionPath = (sid) => `${SESSION_PREFIX}${sha256(sid)}.json`;
 
-export const createAdminSession = async () => {
+export const createAdminSession = async (email) => {
+  const normalizedEmail = normalizeText(email).toLowerCase();
+  if (!isAuthorizedAdminEmail(normalizedEmail)) throw new Error("This account is not authorized.");
   const sid = randomBytes(32).toString("base64url");
   const csrf = randomBytes(24).toString("base64url");
   const expiresAt = Date.now() + SESSION_LIFETIME_MS;
-  const payload = { sid, csrf, email: adminEmail(), expiresAt };
+  const payload = { sid, csrf, email: normalizedEmail, expiresAt };
   const encoded = base64url(JSON.stringify(payload));
   const token = `${encoded}.${hmac(encoded)}`;
   await writePrivateJson(sessionPath(sid), {
@@ -156,7 +186,7 @@ const parseSessionToken = (token) => {
   try {
     const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
     if (!payload.sid || !payload.csrf || !payload.email || !Number.isFinite(payload.expiresAt)) return null;
-    if (payload.expiresAt <= Date.now() || payload.email !== adminEmail()) return null;
+    if (payload.expiresAt <= Date.now() || !isAuthorizedAdminEmail(payload.email)) return null;
     return payload;
   } catch {
     return null;
@@ -176,6 +206,7 @@ export const authenticateAdminRequest = async (request, { csrf = false } = {}) =
   if (!payload) return null;
   const stored = await readPrivateJson(sessionPath(payload.sid));
   if (!stored?.value || stored.value.expiresAt <= new Date().toISOString()) return null;
+  if (stored.value.email !== payload.email || !isAuthorizedAdminEmail(stored.value.email)) return null;
   if (stored.value.sidHash !== sha256(payload.sid) || stored.value.csrfHash !== sha256(payload.csrf)) return null;
   if (csrf) {
     const supplied = normalizeText(request.headers["x-csrf-token"]);
@@ -222,11 +253,13 @@ export const allowPasswordResetRequest = async (request, email) => {
   return true;
 };
 
-export const createPasswordReset = async () => {
+export const createPasswordReset = async (email) => {
+  const normalizedEmail = normalizeText(email).toLowerCase();
+  if (!isAuthorizedAdminEmail(normalizedEmail)) throw new Error("This account is not authorized.");
   const token = randomBytes(32).toString("base64url");
   const pathname = `${RESET_PREFIX}${sha256(token)}.json`;
   await writePrivateJson(pathname, {
-    email: adminEmail(),
+    email: normalizedEmail,
     tokenHash: sha256(token),
     createdAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + RESET_LIFETIME_MS).toISOString(),
@@ -240,14 +273,14 @@ export const consumePasswordReset = async (token) => {
   const pathname = `${RESET_PREFIX}${tokenHash}.json`;
   const current = await readPrivateJson(pathname);
   if (!current?.value || current.value.usedAt || current.value.tokenHash !== tokenHash) return null;
-  if (current.value.expiresAt <= new Date().toISOString() || current.value.email !== adminEmail()) return null;
+  if (current.value.expiresAt <= new Date().toISOString() || !isAuthorizedAdminEmail(current.value.email)) return null;
   try {
     await writePrivateJson(pathname, { ...current.value, usedAt: new Date().toISOString() }, current);
   } catch (error) {
     if (error instanceof BlobPreconditionFailedError) return null;
     throw error;
   }
-  return { pathname };
+  return { pathname, email: current.value.email };
 };
 
 export const finishPasswordReset = async (reset) => {

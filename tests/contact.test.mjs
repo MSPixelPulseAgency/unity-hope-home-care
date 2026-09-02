@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import nodemailer from "nodemailer";
 import contactHandler from "../api/contact.js";
+import { createSubmissionReplyEmail } from "../api/_email.js";
 import {
   MAX_RESUME_BYTES,
   createConfirmationEmail,
@@ -191,6 +192,20 @@ test("uses the requested care-notification actions", () => {
   const notification = createNotificationEmail(validation.value.data);
   assert.match(notification.html, /Call Care Request/);
   assert.match(notification.html, /Reply by Email/);
+});
+
+test("builds a safe owner follow-up email with HTML and plain-text fallbacks", () => {
+  const message = createSubmissionReplyEmail({
+    name: "Applicant <Name>",
+    subject: "Application follow-up\r\nBcc: attacker@example.com",
+    message: "Thank you for applying.\nPlease reply with your availability.",
+  });
+  assert.equal(message.subject, "Application follow-up Bcc: attacker@example.com");
+  assert.match(message.html, /Applicant &lt;Name&gt;/);
+  assert.doesNotMatch(message.html, /Applicant <Name>/);
+  assert.match(message.html, /Thank you for applying\.<br \/>/);
+  assert.match(message.text, /Please reply with your availability/);
+  assert.match(message.text, /937-221-9764/);
 });
 
 test("rejects disallowed origins before processing a form", async () => {

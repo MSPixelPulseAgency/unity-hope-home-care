@@ -30,6 +30,7 @@ GMAIL_USER=<temporary authenticated Gmail sender>
 GMAIL_APP_PASSWORD=<Google app password stored only in Vercel>
 CONTACT_TO_EMAIL=<temporary owner inbox>
 ADMIN_EMAIL=<temporary owner inbox>
+ADMIN_EMAILS=uhhomehealthllc@gmail.com,eyesdigitbusinessstudio@gmail.com,mspixelpulse@gmail.com
 ALLOWED_ORIGIN=https://uhhomehealth.com,https://www.uhhomehealth.com,https://admin.uhhomehealth.com
 SITE_URL=https://uhhomehealth.com
 ADMIN_ORIGIN=https://admin.uhhomehealth.com
@@ -51,9 +52,11 @@ Approve and decline links are action-specific, HMAC-signed, expire after 30 days
 
 ## Owner portal and routine content management
 
-The private owner portal is available only at `https://admin.uhhomehealth.com`. It uses email/password authentication, an HttpOnly secure host-only session cookie, CSRF protection, persistent rate limits and one-time password-reset links. There is no public registration route or frontend storage credential.
+The private owner portal is available only at `https://admin.uhhomehealth.com`. `ADMIN_EMAILS` is the exact server-side allowlist; each approved email has its own scrypt password record, independent HttpOnly secure session set and one-time password-reset links delivered only to that address. `ADMIN_EMAIL` remains the primary review/form administration inbox. There is no public registration route or frontend storage credential.
 
-After sign-in, the owner can update core website details, homepage content, services, service areas, team profiles, resources, article publication state and route metadata. The portal also manages review publication and securely retained form submissions/résumés. Changes are validated and stored as private Vercel Blob JSON; defaults in `src/data/` remain the version-controlled fallback.
+After sign-in, an administrator can update core website details, homepage content, services, service areas, team profiles, resources, article publication state and route metadata. The portal also manages review publication, contact/care submissions, a dedicated career-applications workflow, private notes, archives, direct follow-up email, activity history and securely retained résumés. Changes are validated and stored as private Vercel Blob JSON; defaults in `src/data/` remain the version-controlled fallback.
+
+`ADMIN_PASSWORD_HASH` is only a backwards-compatible bootstrap for the primary `ADMIN_EMAIL`. Additional allowlisted administrators initialize or change their independent password through **Forgot password?**. Removing an address from `ADMIN_EMAILS` immediately blocks its active sessions and password resets without exposing whether the address was ever authorized.
 
 See `docs/owner-guide.md` for the owner workflow and `docs/content-management.md` for the technical content model.
 

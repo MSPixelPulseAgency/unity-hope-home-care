@@ -12,12 +12,12 @@
 
 ## Environment variables
 
-Forms require server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `CONTACT_TO_EMAIL` routes form notifications; `ADMIN_EMAIL` routes password reset and review-owner messages. Temporary QA ownership may use an agency mailbox only when explicitly authorized. At client handoff, replace the sender and owner values together with the client's own Gmail App Password. Never print, copy to frontend code or commit secrets.
+Forms require server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `CONTACT_TO_EMAIL` routes form notifications; `ADMIN_EMAIL` is the primary review/form administration inbox; `ADMIN_EMAILS` is the exact comma-separated login/reset allowlist. Temporary QA ownership may use an agency mailbox only when explicitly authorized. At client handoff, replace the sender and owner values together with the client's own Gmail App Password. Never print, copy to frontend code or commit secrets.
 
-Admin authentication additionally requires `ADMIN_ORIGIN`, `ADMIN_SESSION_SECRET` and `ADMIN_PASSWORD_HASH`. The Blob token and review secret remain server-only. `ALLOWED_ORIGIN` includes the apex, `www` and admin host.
+Admin authentication additionally requires `ADMIN_ORIGIN`, `ADMIN_SESSION_SECRET` and the `ADMIN_EMAILS` allowlist. `ADMIN_PASSWORD_HASH` is a backwards-compatible bootstrap only for the primary administrator; each additional admin uses the reset flow to establish an independent persistent password record. The Blob token and review secret remain server-only. `ALLOWED_ORIGIN` includes the apex, `www` and admin host.
 
 `VITE_GA_MEASUREMENT_ID` and `VITE_GOOGLE_SITE_VERIFICATION` are optional public Google configuration values. Leave them blank until the client supplies valid values and approves analytics/privacy use. They are not substitutes for the server-only Gmail settings.
 
 ## Production checks
 
-Open the live site and inspect Home, About, Services, a service detail, Request Care, Contact, Careers, Reviews, Resources and Privacy. Verify the admin sign-in/reset/logout workflow, managed content, submissions, résumé downloads and review moderation. Check direct URLs, responsive layouts, email delivery, sitemap, robots, schema, OG image, QR target and production logs. Never change/delete Directnic apex, `www`, MX, TXT or unrelated records.
+Open the live site and inspect Home, About, Services, a service detail, Request Care, Contact, Careers, Reviews, Resources and Privacy. Verify allowlisted admin sign-in/reset/logout behavior, managed content, Team empty/CRUD states, general submissions, dedicated applications, private notes, status/archive/email activity, résumé downloads and review moderation. Check direct URLs, responsive layouts, email delivery, sitemap, robots, schema, OG image, QR target and production logs. Never change/delete Directnic apex, `www`, MX, TXT or unrelated records.

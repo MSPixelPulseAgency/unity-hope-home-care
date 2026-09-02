@@ -3,8 +3,8 @@
 ## Sign in
 
 1. Open `https://admin.uhhomehealth.com`.
-2. Enter the configured owner email and password.
-3. If the password is unknown, choose **Forgot password?**. A one-time link is sent to the configured owner inbox and expires after 30 minutes.
+2. Enter your own approved administrator email and password. Passwords and sessions are never shared between administrators.
+3. If the password is unknown, choose **Forgot password?**. If the email is authorized, a one-time link is sent only to that address and expires after 30 minutes. The portal always shows the same generic confirmation so it never reveals the allowlist.
 4. Use **Sign Out** when finished, especially on a shared device.
 
 There is no public registration page. Six unsuccessful sign-in attempts trigger a temporary 15-minute limit.
@@ -28,7 +28,9 @@ Never edit or create a review on someone else's behalf. Pending, declined and hi
 
 ## Inquiries and careers
 
-**Submissions** contains Contact, Request Care and Career records. Open an item to review its fields, update its follow-up status, or download a validated résumé. Delete only when the record is no longer needed; deletion permanently removes the record and attachment.
+**Submissions** contains Contact and Request Care records. **Applications** is the dedicated careers inbox. Open an item to review every submitted field, change its status, save private owner notes, send a secure follow-up email, view activity, archive/restore it, or download a validated résumé. Search and filters work independently in each section. Delete only when retention is no longer required; deletion permanently removes the record and attachment.
+
+Use **New**, **Reviewing**, **Contacted** and **Closed** consistently. Sending a follow-up email automatically marks the record **Contacted** and records the sender, recipient, subject and time in its private activity history. The message body remains private and is not copied into the activity log.
 
 The website continues to send the owner notification and visitor confirmation email. **Reply by Email** responds to the submitter because Reply-To is set to their address.
 

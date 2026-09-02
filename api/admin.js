@@ -2,9 +2,24 @@ import { randomBytes } from "node:crypto";
 import { del, list, put } from "@vercel/blob";
 import { adminSiteUrl, authenticateAdminRequest, isAllowedAdminOrigin } from "./_admin-auth.js";
 import { loadManagedContent, saveManagedSection } from "./_cms.js";
+import {
+  createMailTransporter,
+  createSubmissionReplyEmail,
+  getEmailConfig,
+  safeMailError,
+} from "./_email.js";
 import { adminDeleteReview, adminModerateReview, listAllReviews } from "./_reviews.js";
-import { deleteSubmission, getSubmissionFile, listSubmissions, updateSubmissionStatus } from "./_submissions.js";
+import {
+  deleteSubmission,
+  getSubmission,
+  getSubmissionFile,
+  listSubmissions,
+  recordSubmissionEmail,
+  updateSubmission,
+} from "./_submissions.js";
 import { normalizeText } from "./_request-security.js";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const readBody = (request) => {
   if (typeof request.body === "string") return JSON.parse(request.body || "{}");
@@ -23,16 +38,17 @@ const isAdminHost = (request) => {
 
 const dashboardPayload = async () => {
   const [reviews, submissions] = await Promise.all([listAllReviews(), listSubmissions()]);
+  const activeSubmissions = submissions.filter((item) => !item.archived);
   return {
     counts: {
-      inquiries: submissions.filter((item) => item.formType === "contact").length,
-      careRequests: submissions.filter((item) => item.formType === "request-care").length,
-      applications: submissions.filter((item) => item.formType === "career").length,
-      newSubmissions: submissions.filter((item) => item.status === "new").length,
+      inquiries: activeSubmissions.filter((item) => item.formType === "contact").length,
+      careRequests: activeSubmissions.filter((item) => item.formType === "request-care").length,
+      applications: activeSubmissions.filter((item) => item.formType === "career").length,
+      newSubmissions: activeSubmissions.filter((item) => item.status === "new").length,
       pendingReviews: reviews.filter((item) => item.status === "pending").length,
       approvedReviews: reviews.filter((item) => item.status === "approved" && item.published).length,
     },
-    recentSubmissions: submissions.slice(0, 6),
+    recentSubmissions: activeSubmissions.slice(0, 6),
     recentReviews: reviews.slice(0, 6),
   };
 };
@@ -82,9 +98,13 @@ export default async function handler(request, response) {
         return response.status(200).json({ message: "Review updated.", review });
       }
       if (section === "submissions") {
-        const submission = await updateSubmissionStatus(body.id, normalizeText(body.status));
+        const submission = await updateSubmission(body.id, {
+          ...(Object.hasOwn(body, "status") ? { status: body.status } : {}),
+          ...(Object.hasOwn(body, "notes") ? { notes: body.notes } : {}),
+          ...(Object.hasOwn(body, "archived") ? { archived: body.archived } : {}),
+        }, session.email);
         if (!submission) return response.status(409).json({ error: "The submission could not be updated. Refresh and try again." });
-        return response.status(200).json({ message: "Submission status updated.", submission });
+        return response.status(200).json({ message: "Submission updated.", submission });
       }
       return response.status(400).json({ error: "Unknown admin section." });
     }
@@ -110,6 +130,40 @@ export default async function handler(request, response) {
           cacheControlMaxAge: 31536000,
         });
         return response.status(201).json({ path: `/api/media?id=${id}` });
+      }
+      if (section === "submissions" && normalizeText(body.action) === "send-email") {
+        const submission = await getSubmission(body.id);
+        if (!submission) return response.status(404).json({ error: "Submission not found." });
+        const recipient = normalizeText(submission.fields?.email).toLowerCase();
+        const subject = normalizeText(body.subject).replace(/[\r\n]+/g, " ").slice(0, 160);
+        const messageText = String(body.message ?? "").trim().slice(0, 5000);
+        if (!EMAIL_PATTERN.test(recipient)) return response.status(400).json({ error: "This submission does not have a valid email address." });
+        if (subject.length < 3 || messageText.length < 10) {
+          return response.status(400).json({ error: "Add a clear subject and a message of at least 10 characters." });
+        }
+        const config = getEmailConfig();
+        const message = createSubmissionReplyEmail({ name: submission.fields?.name, subject, message: messageText, businessEmail: config.contactEmail });
+        const transporter = createMailTransporter(config);
+        try {
+          await transporter.sendMail({
+            from: { name: "Unity & Hope Home Care LLC", address: config.gmailUser },
+            to: recipient,
+            replyTo: config.contactEmail,
+            subject: message.subject,
+            html: message.html,
+            text: message.text,
+            messageId: `<unity-hope-admin-follow-up-${randomBytes(12).toString("hex")}@uhhomehealth.com>`,
+          });
+        } catch (error) {
+          console.error("Admin submission email failed", safeMailError(error));
+          return response.status(503).json({ error: "The email could not be sent. Please try again." });
+        }
+        const updated = await recordSubmissionEmail(body.id, {
+          actor: session.email,
+          to: recipient,
+          subject: message.subject,
+        });
+        return response.status(200).json({ message: "Email sent.", submission: updated || submission });
       }
       return response.status(400).json({ error: "Unknown admin section." });
     }
