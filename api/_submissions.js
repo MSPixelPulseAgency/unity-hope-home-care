@@ -111,7 +111,7 @@ export const getSubmission = async (id) => {
 
 export const updateSubmission = async (id, changes, actor) => {
   if (!ID_PATTERN.test(String(id)) || !changes || typeof changes !== "object") return null;
-  const current = await readPrivateJson(recordPath(id));
+  const current = await readPrivateJson(recordPath(id), { freshEtag: true });
   if (!current) return null;
   const previous = normalizedRecord(current.value);
   const updated = { ...previous };
@@ -153,7 +153,7 @@ export const updateSubmission = async (id, changes, actor) => {
 
 export const recordSubmissionEmail = async (id, { actor, to, subject }) => {
   if (!ID_PATTERN.test(String(id))) return null;
-  const current = await readPrivateJson(recordPath(id));
+  const current = await readPrivateJson(recordPath(id), { freshEtag: true });
   if (!current) return null;
   const previous = normalizedRecord(current.value);
   const updated = {

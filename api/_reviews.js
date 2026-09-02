@@ -8,6 +8,7 @@ import {
   BlobPreconditionFailedError,
   del,
   get,
+  head,
   list,
   put,
 } from "@vercel/blob";
@@ -131,18 +132,19 @@ export const validateReviewSubmission = (rawBody = {}, now = Date.now()) => {
 const reviewPath = (id) => `${REVIEW_PREFIX}${id}.json`;
 const ratePath = (clientKey, secret) => `${RATE_PREFIX}${createHmac("sha256", secret).update(clientKey).digest("hex")}.json`;
 
-const readJson = async (pathname) => {
+const readJson = async (pathname, { freshEtag = false } = {}) => {
   const result = await get(pathname, { access: "private", useCache: false });
   if (!result || result.statusCode !== 200 || !result.stream) return null;
   const raw = await new Response(result.stream).text();
-  return { value: JSON.parse(raw), etag: result.blob.etag };
+  const etag = freshEtag ? (await head(pathname)).etag : result.blob.etag;
+  return { value: JSON.parse(raw), etag };
 };
 
-export const readReview = (id) => readJson(reviewPath(id));
+export const readReview = (id, options) => readJson(reviewPath(id), options);
 
 export const enforceReviewRateLimit = async ({ clientKey, now = Date.now(), secret = reviewSecret() }) => {
   const pathname = ratePath(clientKey, secret);
-  const current = await readJson(pathname);
+  const current = await readJson(pathname, { freshEtag: true });
   if (current && now - Number(current.value.lastSubmissionAt) < REVIEW_RATE_LIMIT_MS) return false;
 
   const body = JSON.stringify({ lastSubmissionAt: now });
@@ -268,7 +270,7 @@ export const listAllReviews = async () => {
 
 export const adminModerateReview = async ({ id, action }) => {
   if (!REVIEW_ID_PATTERN.test(String(id)) || !new Set(["approve", "decline", "hide", "publish"]).has(action)) return null;
-  const current = await readReview(id);
+  const current = await readReview(id, { freshEtag: true });
   if (!current) return null;
   const timestamp = new Date().toISOString();
   const approved = action === "approve" || action === "publish";
@@ -300,7 +302,7 @@ export const adminModerateReview = async ({ id, action }) => {
 
 export const adminDeleteReview = async (id) => {
   if (!REVIEW_ID_PATTERN.test(String(id))) return false;
-  const current = await readReview(id);
+  const current = await readReview(id, { freshEtag: true });
   if (!current) return false;
   await del(reviewPath(id), { ifMatch: current.etag });
   return true;
@@ -313,7 +315,7 @@ const expectedTokenHash = (review, action) => (action === "approve"
 export const inspectModerationRequest = async ({ token, action, now = Date.now(), secret = reviewSecret() }) => {
   const parsed = parseModerationToken({ token, action, now, secret });
   if (parsed.error) return parsed;
-  const stored = await readReview(parsed.value.id);
+  const stored = await readReview(parsed.value.id, { freshEtag: true });
   if (!stored) return { error: "invalid" };
   const review = stored.value;
   if (review.status !== "pending") return { error: "used" };
@@ -355,7 +357,7 @@ export const moderateReview = async ({ token, action, now = Date.now(), secret =
 export const withdrawReview = async ({ token, now = Date.now(), secret = reviewSecret() }) => {
   const parsed = parseModerationToken({ token, action: "withdraw", now, secret });
   if (parsed.error) return parsed;
-  const stored = await readReview(parsed.value.id);
+  const stored = await readReview(parsed.value.id, { freshEtag: true });
   if (!stored) return { error: "used" };
   if (new Date(stored.value.token_expires_at).getTime() <= now) return { error: "expired" };
   if (stored.value.withdrawal_token_hash !== parsed.value.tokenHash) return { error: "invalid" };

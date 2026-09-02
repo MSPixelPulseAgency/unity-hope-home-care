@@ -2,17 +2,19 @@ import {
   BlobPreconditionFailedError,
   del,
   get,
+  head,
   list,
   put,
 } from "@vercel/blob";
 
 export { BlobPreconditionFailedError };
 
-export const readPrivateJson = async (pathname) => {
+export const readPrivateJson = async (pathname, { freshEtag = false } = {}) => {
   const result = await get(pathname, { access: "private", useCache: false });
   if (!result || result.statusCode !== 200 || !result.stream) return null;
   const raw = await new Response(result.stream).text();
-  return { value: JSON.parse(raw), etag: result.blob.etag, blob: result.blob };
+  const metadata = freshEtag ? await head(pathname) : result.blob;
+  return { value: JSON.parse(raw), etag: metadata.etag, blob: { ...result.blob, ...metadata } };
 };
 
 export const writePrivateJson = async (pathname, value, current = null) => {

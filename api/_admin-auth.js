@@ -152,7 +152,7 @@ export const setAdminPassword = async (email, password) => {
   const error = validatePassword(password);
   if (error) throw new Error(error);
   const pathname = accountPath(normalizedEmail);
-  const current = await readPrivateJson(pathname);
+  const current = await readPrivateJson(pathname, { freshEtag: true });
   const record = await createPasswordRecord(password, normalizedEmail);
   await writePrivateJson(pathname, record, current);
   await revokeAdminSessions(normalizedEmail);
@@ -224,7 +224,7 @@ const ratePath = (prefix, request, email) => `${prefix}${hmac(`${requestClientKe
 
 export const checkLoginRateLimit = async (request, email) => {
   const pathname = ratePath(RATE_PREFIX, request, email);
-  const current = await readPrivateJson(pathname);
+  const current = await readPrivateJson(pathname, { freshEtag: true });
   const now = Date.now();
   const windowStartedAt = Number(current?.value?.windowStartedAt || 0);
   const attempts = now - windowStartedAt < LOGIN_WINDOW_MS ? Number(current?.value?.attempts || 0) : 0;
@@ -246,7 +246,7 @@ export const clearLoginRate = async (rate) => {
 
 export const allowPasswordResetRequest = async (request, email) => {
   const pathname = ratePath(RESET_RATE_PREFIX, request, email);
-  const current = await readPrivateJson(pathname);
+  const current = await readPrivateJson(pathname, { freshEtag: true });
   const lastSentAt = Number(current?.value?.lastSentAt || 0);
   if (Date.now() - lastSentAt < 10 * 60 * 1000) return false;
   await writePrivateJson(pathname, { lastSentAt: Date.now() }, current);
@@ -271,7 +271,7 @@ export const createPasswordReset = async (email) => {
 export const consumePasswordReset = async (token) => {
   const tokenHash = sha256(normalizeText(token));
   const pathname = `${RESET_PREFIX}${tokenHash}.json`;
-  const current = await readPrivateJson(pathname);
+  const current = await readPrivateJson(pathname, { freshEtag: true });
   if (!current?.value || current.value.usedAt || current.value.tokenHash !== tokenHash) return null;
   if (current.value.expiresAt <= new Date().toISOString() || !isAuthorizedAdminEmail(current.value.email)) return null;
   try {
