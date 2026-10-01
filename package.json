@@ -18,7 +18,7 @@
     "@vercel/blob": "^2.8.0",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
-    "nodemailer": "^9.0.5",
+    "nodemailer": "^10.0.9",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",
