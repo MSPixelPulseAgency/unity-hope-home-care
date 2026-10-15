@@ -17,7 +17,7 @@ export const getEmailConfig = () => {
   const gmailAppPassword = normalizeText(process.env.GMAIL_APP_PASSWORD).replaceAll(" ", "");
   const contactEmail = normalizeText(process.env.CONTACT_TO_EMAIL).toLowerCase();
   const adminEmail = normalizeText(process.env.ADMIN_EMAIL || contactEmail).toLowerCase();
-  const notificationEmails = parseEmailList(process.env.NOTIFICATION_TO_EMAILS || contactEmail);
+  const notificationEmails = parseEmailList(process.env.BUSINESS_NOTIFICATION_EMAILS || contactEmail);
   if (!EMAIL_PATTERN.test(gmailUser) || !gmailAppPassword || !EMAIL_PATTERN.test(contactEmail) || !EMAIL_PATTERN.test(adminEmail)) {
     throw new Error("Email delivery is not configured.");
   }

@@ -30,13 +30,15 @@ test("uses an exact deduplicated admin allowlist without authorizing other email
   const previousEmails = process.env.ADMIN_EMAILS;
   const previousEmail = process.env.ADMIN_EMAIL;
   process.env.ADMIN_EMAIL = "uhhomehealthllc@gmail.com";
-  process.env.ADMIN_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, UHHOMEHEALTHLLC@gmail.com, invalid";
+  process.env.ADMIN_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, mspixelpulse@gmail.com, UHHOMEHEALTHLLC@gmail.com, invalid";
   try {
     assert.deepEqual(adminEmails(), [
       "uhhomehealthllc@gmail.com",
       "eyesdigitbusinesstudio@gmail.com",
+      "mspixelpulse@gmail.com",
     ]);
     assert.equal(isAuthorizedAdminEmail(" EYESDIGITBUSINESSTUDIO@gmail.com "), true);
+    assert.equal(isAuthorizedAdminEmail(" mspixelpulse@gmail.com "), true);
     assert.equal(isAuthorizedAdminEmail("other@example.com"), false);
   } finally {
     if (previousEmails === undefined) delete process.env.ADMIN_EMAILS;

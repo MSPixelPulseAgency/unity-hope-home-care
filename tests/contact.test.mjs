@@ -74,13 +74,13 @@ test("loads a deduplicated multi-recipient client notification list", () => {
     gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
     contactEmail: process.env.CONTACT_TO_EMAIL,
     adminEmail: process.env.ADMIN_EMAIL,
-    notificationEmails: process.env.NOTIFICATION_TO_EMAILS,
+    notificationEmails: process.env.BUSINESS_NOTIFICATION_EMAILS,
   };
   process.env.GMAIL_USER = "temporary-sender@example.com";
   process.env.GMAIL_APP_PASSWORD = "controlled-test-password";
   process.env.CONTACT_TO_EMAIL = "uhhomehealthllc@gmail.com";
   process.env.ADMIN_EMAIL = "uhhomehealthllc@gmail.com";
-  process.env.NOTIFICATION_TO_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, UHHOMEHEALTHLLC@gmail.com";
+  process.env.BUSINESS_NOTIFICATION_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, UHHOMEHEALTHLLC@gmail.com";
   try {
     const config = getEmailConfig();
     assert.deepEqual(config.notificationEmails, [
@@ -95,7 +95,7 @@ test("loads a deduplicated multi-recipient client notification list", () => {
       GMAIL_APP_PASSWORD: previous.gmailAppPassword,
       CONTACT_TO_EMAIL: previous.contactEmail,
       ADMIN_EMAIL: previous.adminEmail,
-      NOTIFICATION_TO_EMAILS: previous.notificationEmails,
+      BUSINESS_NOTIFICATION_EMAILS: previous.notificationEmails,
     })) {
       if (value === undefined) delete process.env[key];
       else process.env[key] = value;

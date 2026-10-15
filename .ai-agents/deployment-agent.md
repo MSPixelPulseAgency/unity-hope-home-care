@@ -12,7 +12,7 @@
 
 ## Environment variables
 
-Forms require server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `NOTIFICATION_TO_EMAILS` is the comma-separated client-only delivery list for form and review notifications. `CONTACT_TO_EMAIL` is the primary customer Reply-To address; `ADMIN_EMAIL` is the primary review/admin Reply-To address; `ADMIN_EMAILS` is the exact comma-separated login/reset allowlist. Keep agency/developer addresses out of notification and admin recipient variables. At client handoff, replace the temporary sender with the client's own Gmail address and App Password. Never print, copy to frontend code or commit secrets.
+Forms require server-only `GMAIL_USER` and `GMAIL_APP_PASSWORD` values. `BUSINESS_NOTIFICATION_EMAILS` is the comma-separated client-only delivery list for form and review notifications. `CONTACT_TO_EMAIL` is the primary customer Reply-To address; `ADMIN_EMAIL` is the primary review/admin Reply-To address; `ADMIN_EMAILS` is the separate exact login/reset allowlist. An agency/developer address may remain in `ADMIN_EMAILS` for portal access but must stay out of every business-notification recipient variable. At client handoff, replace the temporary sender with the client's own Gmail address and App Password. Never print, copy to frontend code or commit secrets.
 
 Admin authentication additionally requires `ADMIN_ORIGIN`, `ADMIN_SESSION_SECRET` and the `ADMIN_EMAILS` allowlist. `ADMIN_PASSWORD_HASH` is a backwards-compatible bootstrap only for the primary administrator; each additional admin uses the reset flow to establish an independent persistent password record. The Blob token and review secret remain server-only. `ALLOWED_ORIGIN` includes the apex, `www` and admin host.
 
