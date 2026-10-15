@@ -94,20 +94,30 @@ export default async function handler(request, response) {
   const email = createReviewNotificationEmail({ review: pending.review, approveUrl, declineUrl });
   const transporter = createMailTransporter(emailConfig);
 
+  const sendNotification = (recipient, recipientIndex) => transporter.sendMail({
+    from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
+    to: recipient,
+    replyTo: emailConfig.adminEmail,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
+    messageId: `<unity-hope-review-${pending.review.id}-${recipientIndex + 1}@uhhomehealth.com>`,
+  });
+
   try {
-    await transporter.sendMail({
-      from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
-      to: emailConfig.adminEmail,
-      replyTo: emailConfig.adminEmail,
-      subject: email.subject,
-      html: email.html,
-      text: email.text,
-      messageId: `<unity-hope-review-${pending.review.id}@uhhomehealth.com>`,
-    });
+    await sendNotification(emailConfig.notificationEmails[0], 0);
   } catch (error) {
     await removePendingReview({ id: pending.review.id, etag: pending.etag }).catch(() => {});
     console.error("Review approval email failed", safeMailError(error));
     return response.status(502).json({ error: "We could not submit your review. Please try again later." });
+  }
+
+  for (let index = 1; index < emailConfig.notificationEmails.length; index += 1) {
+    try {
+      await sendNotification(emailConfig.notificationEmails[index], index);
+    } catch (error) {
+      console.error("Secondary review approval email failed", safeMailError(error));
+    }
   }
 
   return response.status(201).json({

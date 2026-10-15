@@ -29,8 +29,9 @@ Configure these server-only values in Vercel Production:
 GMAIL_USER=<temporary authenticated Gmail sender>
 GMAIL_APP_PASSWORD=<Google app password stored only in Vercel>
 CONTACT_TO_EMAIL=<temporary owner inbox>
+NOTIFICATION_TO_EMAILS=uhhomehealthllc@gmail.com,eyesdigitbusinesstudio@gmail.com
 ADMIN_EMAIL=<temporary owner inbox>
-ADMIN_EMAILS=uhhomehealthllc@gmail.com,eyesdigitbusinessstudio@gmail.com,mspixelpulse@gmail.com
+ADMIN_EMAILS=uhhomehealthllc@gmail.com,eyesdigitbusinesstudio@gmail.com
 ALLOWED_ORIGIN=https://uhhomehealth.com,https://www.uhhomehealth.com,https://admin.uhhomehealth.com
 SITE_URL=https://uhhomehealth.com
 ADMIN_ORIGIN=https://admin.uhhomehealth.com
@@ -42,7 +43,7 @@ REVIEW_TOKEN_SECRET=<at least 32 random characters stored only in Vercel>
 
 Never expose the Gmail app password through a `VITE_` variable or commit it to Git. If delivery is not configured, the endpoint returns an honest message directing visitors to call or email.
 
-`GMAIL_USER` remains the authenticated SMTP sender. `CONTACT_TO_EMAIL` routes all business notifications to the Unity & Hope client inbox.
+`GMAIL_USER` remains the authenticated SMTP sender. `NOTIFICATION_TO_EMAILS` is the deduplicated list of client recipients for contact, care-request, career/résumé and review-moderation notifications. `CONTACT_TO_EMAIL` is the primary client address used for customer Reply-To and business identity; `ADMIN_EMAIL` is the primary admin/review Reply-To address. Keep agency/developer addresses out of all three recipient variables.
 
 ## Review workflow
 

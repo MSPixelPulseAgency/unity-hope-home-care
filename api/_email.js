@@ -3,15 +3,26 @@ import { escapeHtml, normalizeText } from "./_request-security.js";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const parseEmailList = (value) => {
+  const entries = String(value || "")
+    .split(",")
+    .map((email) => normalizeText(email).toLowerCase())
+    .filter(Boolean);
+  if (entries.some((email) => !EMAIL_PATTERN.test(email))) throw new Error("Email delivery is not configured.");
+  return [...new Set(entries)];
+};
+
 export const getEmailConfig = () => {
   const gmailUser = normalizeText(process.env.GMAIL_USER).toLowerCase();
   const gmailAppPassword = normalizeText(process.env.GMAIL_APP_PASSWORD).replaceAll(" ", "");
   const contactEmail = normalizeText(process.env.CONTACT_TO_EMAIL).toLowerCase();
   const adminEmail = normalizeText(process.env.ADMIN_EMAIL || contactEmail).toLowerCase();
+  const notificationEmails = parseEmailList(process.env.NOTIFICATION_TO_EMAILS || contactEmail);
   if (!EMAIL_PATTERN.test(gmailUser) || !gmailAppPassword || !EMAIL_PATTERN.test(contactEmail) || !EMAIL_PATTERN.test(adminEmail)) {
     throw new Error("Email delivery is not configured.");
   }
-  return { gmailUser, gmailAppPassword, contactEmail, adminEmail };
+  if (!notificationEmails.length) throw new Error("Email delivery is not configured.");
+  return { gmailUser, gmailAppPassword, contactEmail, adminEmail, notificationEmails };
 };
 
 export const createMailTransporter = ({ gmailUser, gmailAppPassword } = getEmailConfig()) => nodemailer.createTransport({

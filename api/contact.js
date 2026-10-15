@@ -371,6 +371,7 @@ export default async function handler(request, response) {
     return response.status(503).json({ error: "Online delivery is being configured. Please call 937-221-9764 or email uhhomehealthllc@gmail.com." });
   }
   const contactTo = emailConfig.contactEmail;
+  const notificationTo = emailConfig.notificationEmails;
 
   pruneMaps();
   const priorSubmission = submissions.get(idempotencyKey);
@@ -396,17 +397,26 @@ export default async function handler(request, response) {
     contentType: data.resume.contentType,
   }] : undefined;
 
+  const sendNotification = (recipient, recipientIndex) => transporter.sendMail({
+    from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
+    to: recipient,
+    replyTo: { name: data.name, address: data.email },
+    subject: notification.subject,
+    html: notification.html,
+    text: notification.text,
+    attachments,
+    messageId: `<unity-hope-notification-${idempotencyKey}-${recipientIndex + 1}@uhhomehealth.com>`,
+  });
+
   try {
-    await transporter.sendMail({
-      from: { name: "Unity & Hope Website", address: emailConfig.gmailUser },
-      to: contactTo,
-      replyTo: { name: data.name, address: data.email },
-      subject: notification.subject,
-      html: notification.html,
-      text: notification.text,
-      attachments,
-      messageId: `<unity-hope-notification-${idempotencyKey}@uhhomehealth.com>`,
-    });
+    await sendNotification(notificationTo[0], 0);
+    for (let index = 1; index < notificationTo.length; index += 1) {
+      try {
+        await sendNotification(notificationTo[index], index);
+      } catch (error) {
+        console.error("Secondary business notification email failed", safeMailError(error));
+      }
+    }
     submissions.set(idempotencyKey, { state: "complete", createdAt: Date.now() });
     await storeSubmission({ data, idempotencyKey }).catch((error) => {
       console.error("Submission could not be added to the admin portal", { code: error?.name || "UNKNOWN" });

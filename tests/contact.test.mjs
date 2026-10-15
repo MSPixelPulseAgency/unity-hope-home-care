@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import nodemailer from "nodemailer";
 import contactHandler from "../api/contact.js";
-import { createSubmissionReplyEmail } from "../api/_email.js";
+import { createSubmissionReplyEmail, getEmailConfig } from "../api/_email.js";
 import {
   MAX_RESUME_BYTES,
   createConfirmationEmail,
@@ -67,6 +67,41 @@ const docxResume = () => encodedResume(
     Buffer.from("[Content_Types].xml word/document.xml Controlled Unity Hope DOCX attachment test"),
   ]),
 );
+
+test("loads a deduplicated multi-recipient client notification list", () => {
+  const previous = {
+    gmailUser: process.env.GMAIL_USER,
+    gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
+    contactEmail: process.env.CONTACT_TO_EMAIL,
+    adminEmail: process.env.ADMIN_EMAIL,
+    notificationEmails: process.env.NOTIFICATION_TO_EMAILS,
+  };
+  process.env.GMAIL_USER = "temporary-sender@example.com";
+  process.env.GMAIL_APP_PASSWORD = "controlled-test-password";
+  process.env.CONTACT_TO_EMAIL = "uhhomehealthllc@gmail.com";
+  process.env.ADMIN_EMAIL = "uhhomehealthllc@gmail.com";
+  process.env.NOTIFICATION_TO_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, UHHOMEHEALTHLLC@gmail.com";
+  try {
+    const config = getEmailConfig();
+    assert.deepEqual(config.notificationEmails, [
+      "uhhomehealthllc@gmail.com",
+      "eyesdigitbusinesstudio@gmail.com",
+    ]);
+    assert.equal(config.contactEmail, "uhhomehealthllc@gmail.com");
+    assert.equal(config.adminEmail, "uhhomehealthllc@gmail.com");
+  } finally {
+    for (const [key, value] of Object.entries({
+      GMAIL_USER: previous.gmailUser,
+      GMAIL_APP_PASSWORD: previous.gmailAppPassword,
+      CONTACT_TO_EMAIL: previous.contactEmail,
+      ADMIN_EMAIL: previous.adminEmail,
+      NOTIFICATION_TO_EMAILS: previous.notificationEmails,
+    })) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
 
 test("validates a contact submission and normalizes the email", () => {
   const result = validateSubmission(baseSubmission({ email: " FAMILY@EXAMPLE.COM " }), now);
@@ -160,27 +195,31 @@ test("Nodemailer JSON transport preserves text, HTML, reply-to and resume attach
   const data = validation.value.data;
   const notification = createNotificationEmail(data);
   const transporter = nodemailer.createTransport({ jsonTransport: true });
-  const info = await transporter.sendMail({
-    from: { name: "Unity & Hope Website", address: "mspixelpulse@gmail.com" },
-    to: "uhhomehealthllc@gmail.com",
-    replyTo: { name: data.name, address: data.email },
-    subject: notification.subject,
-    html: notification.html,
-    text: notification.text,
-    attachments: [{
-      filename: data.resume.filename,
-      content: Buffer.from(data.resume.content, "base64"),
-      contentType: data.resume.contentType,
-    }],
-  });
+  const recipients = ["uhhomehealthllc@gmail.com", "eyesdigitbusinesstudio@gmail.com"];
+  for (const recipient of recipients) {
+    const info = await transporter.sendMail({
+      from: { name: "Unity & Hope Website", address: "temporary-sender@example.com" },
+      to: recipient,
+      replyTo: { name: data.name, address: data.email },
+      subject: notification.subject,
+      html: notification.html,
+      text: notification.text,
+      attachments: [{
+        filename: data.resume.filename,
+        content: Buffer.from(data.resume.content, "base64"),
+        contentType: data.resume.contentType,
+      }],
+    });
 
-  const message = JSON.parse(String(info.message));
-  assert.equal(message.replyTo[0].address, "family@example.com");
-  assert.equal(message.attachments[0].filename, "test-resume.pdf");
-  assert.match(message.html, /New Caregiver Application/i);
-  assert.match(message.text, /CAREGIVER APPLICATION/i);
-  assert.match(message.html, /Call Applicant/);
-  assert.match(message.html, /Email Applicant/);
+    const message = JSON.parse(String(info.message));
+    assert.equal(message.to[0].address, recipient);
+    assert.equal(message.replyTo[0].address, "family@example.com");
+    assert.equal(message.attachments[0].filename, "test-resume.pdf");
+    assert.match(message.html, /New Caregiver Application/i);
+    assert.match(message.text, /CAREGIVER APPLICATION/i);
+    assert.match(message.html, /Call Applicant/);
+    assert.match(message.html, /Email Applicant/);
+  }
 });
 
 test("uses the requested care-notification actions", () => {

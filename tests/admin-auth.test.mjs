@@ -29,15 +29,14 @@ test("creates a salted scrypt password record without storing plaintext", async 
 test("uses an exact deduplicated admin allowlist without authorizing other email addresses", () => {
   const previousEmails = process.env.ADMIN_EMAILS;
   const previousEmail = process.env.ADMIN_EMAIL;
-  process.env.ADMIN_EMAIL = "mspixelpulse@gmail.com";
-  process.env.ADMIN_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinessstudio@gmail.com, mspixelpulse@gmail.com, UHHOMEHEALTHLLC@gmail.com, invalid";
+  process.env.ADMIN_EMAIL = "uhhomehealthllc@gmail.com";
+  process.env.ADMIN_EMAILS = "uhhomehealthllc@gmail.com, eyesdigitbusinesstudio@gmail.com, UHHOMEHEALTHLLC@gmail.com, invalid";
   try {
     assert.deepEqual(adminEmails(), [
       "uhhomehealthllc@gmail.com",
-      "eyesdigitbusinessstudio@gmail.com",
-      "mspixelpulse@gmail.com",
+      "eyesdigitbusinesstudio@gmail.com",
     ]);
-    assert.equal(isAuthorizedAdminEmail(" EYESDIGITBUSINESSSTUDIO@gmail.com "), true);
+    assert.equal(isAuthorizedAdminEmail(" EYESDIGITBUSINESSTUDIO@gmail.com "), true);
     assert.equal(isAuthorizedAdminEmail("other@example.com"), false);
   } finally {
     if (previousEmails === undefined) delete process.env.ADMIN_EMAILS;
